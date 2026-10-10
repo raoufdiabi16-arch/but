@@ -1,9 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" class="gate-pending">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIRVER — Vertex Hoodie in Noir</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<script>
+(function(){try{var c=navigator.connection||{},m=navigator.deviceMemory||4,h=navigator.hardwareConcurrency||4,
+ slow=c.saveData||/(^|-)2g$/.test(c.effectiveType||'')||/3g/.test(c.effectiveType||'');
+ if(slow||m<=2||h<=2||(Math.min(screen.width,screen.height)<=360&&m<=3)) document.documentElement.classList.add('lite');}catch(e){}
+ ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault();},{passive:false});});
+ document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault();},{passive:false});
+ document.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault();},{passive:false});
+})();
+</script>
+<title>AIRVER — Vertex Hoodie</title>
 
 <!-- Favicon: inline SVG monogram, no external asset needed -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230a0a0b'/%3E%3Ctext x='50' y='69' font-family='Arial, Helvetica, sans-serif' font-weight='700' font-size='58' fill='%23fbfbfa' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
@@ -76,7 +86,19 @@
   }
 
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth; touch-action:manipulation; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
+  html,body{overscroll-behavior-x:none;}
+  @media (hover:none) and (pointer:coarse){
+    input,select,textarea{font-size:16px !important;}
+    .product-grid.rail .rail-stage{touch-action:pan-y;}
+    .product-grid.rail .rail-grip{touch-action:pan-y;}
+  }
+  /* lite mode: weak phones / slow networks -> lighter effects */
+  html.lite *{scroll-behavior:auto !important;}
+  html.lite .nav, html.lite .glass, html.lite [class*="glass"], html.lite .quick-picker, html.lite .quick-add-btn{-webkit-backdrop-filter:none !important; backdrop-filter:none !important;}
+  html.lite .rail-item, html.lite .rail-frame{will-change:auto;}
+  html.lite .product-card .rail-stage{filter:none !important;}
+
   body{
     margin:0;
     background:var(--obsidian);
@@ -471,7 +493,9 @@
     position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:50% 0;
     opacity:0; pointer-events:none; user-select:none; -webkit-user-drag:none;
   }
-  .rail-frame[data-frame="0"]{opacity:1;}
+  .rail-frame[data-frame="0"]{opacity:1; z-index:1;}
+  .rail-frame[data-frame="1"]{z-index:2;}
+  .rail-frame[data-frame="2"]{z-index:3;}
 
   /* empty hangers keep the place of the next drops */
   .product-grid.rail > .product-card--soon{height:calc(var(--W) * .25); border:0; background:none; cursor:default;}
@@ -3186,13 +3210,73 @@
 .size-btn.is-soldout{opacity:.38;text-decoration:line-through;cursor:not-allowed}
 .order-summary-ship{font-size:12px;opacity:.7;margin-top:2px;line-height:1.3}
 
+  /* ================= PATCH: Noir page (its own colourway page) ================= */
+  .product-tagline{margin:6px 0 0; border:0 !important; padding:0 !important; text-decoration:none; font-size:13px; line-height:1.5; color:var(--graphite); letter-spacing:.01em;}
+  /* each hanger only reacts inside its own slot (the stage is wider than the slot and would overlap its neighbours) */
+  .product-grid.rail .rail-stage{pointer-events:none;}
+  .product-grid.rail .rail-item .quick-add-btn{z-index:6;}
+  /* touch screens: the cart chip is always there, centred under each hoodie (no hover to reveal it, and no room beside it) */
+  @media (hover:none){ .product-grid.rail .rail-item .quick-add-btn{opacity:1 !important; pointer-events:auto !important; left:50%; top:calc(var(--H) - 2px);} }
+  /* ================= PATCH: real glass top bars (clear, not white) ================= */
+  .nav.is-dark, .nav.is-docked, .overlay-header{
+    background:linear-gradient(180deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,.10) 100%) !important;
+    -webkit-backdrop-filter:blur(24px) saturate(190%); backdrop-filter:blur(24px) saturate(190%);
+    border-bottom:1px solid rgba(255,255,255,.42) !important;
+    box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 10px 30px -18px rgba(20,18,12,.18);
+  }
+  html.lite .nav.is-dark, html.lite .nav.is-docked, html.lite .overlay-header{background:rgba(255,255,255,.62) !important; -webkit-backdrop-filter:none; backdrop-filter:none;}
+  /* over the black footer the bar turns light-on-dark so the icons stay readable */
+  .nav.on-dark .nav-mark{filter:brightness(0) invert(1) !important;}
+  .nav.on-dark .nav-icons svg, .nav.on-dark .nav-hamburger svg{stroke:#fff !important;}
+  .nav.on-dark .nav-links a{color:rgba(255,255,255,.82) !important;}
+  .nav.on-dark{border-bottom-color:rgba(255,255,255,.18) !important;}
+  /* ================= PATCH: phone product page ================= */
+  @media (max-width:940px){
+    .product-overlay .viewer{flex:none !important; width:100%; aspect-ratio:auto !important; height:min(50vh, 128vw); height:min(50svh, 128vw);}
+    .product-overlay .viewer img{object-fit:contain !important;}
+  }
+  .sbar-wrap{display:none;}
+  @media (max-width:940px){
+    .sbar-wrap{display:block; position:sticky; bottom:0; height:0; z-index:6; pointer-events:none;}
+    .sbar{
+      position:absolute; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+      display:flex; align-items:center; gap:14px; padding:9px 9px 9px 20px; border-radius:26px;
+      background:linear-gradient(180deg, rgba(255,255,255,.52), rgba(255,255,255,.24));
+      -webkit-backdrop-filter:blur(26px) saturate(190%); backdrop-filter:blur(26px) saturate(190%);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:0 16px 42px -14px rgba(20,18,12,.34), 0 1px 0 rgba(255,255,255,.85) inset;
+      opacity:0; transform:translateY(135%); pointer-events:none;
+      transition:opacity .35s var(--ease), transform .5s var(--ease);
+    }
+    .sbar.is-on{opacity:1; transform:none; pointer-events:auto;}
+    html.lite .sbar{background:rgba(255,255,255,.9); -webkit-backdrop-filter:none; backdrop-filter:none;}
+    .sbar-info{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1;}
+    .sbar-price{font-size:17px; font-weight:700; letter-spacing:-.01em; color:var(--ink); line-height:1.1;}
+    .sbar-sub{font-size:11.5px; color:var(--graphite); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .sbar-btn{
+      flex:none; appearance:none; border:0; cursor:pointer; height:48px; padding:0 26px; border-radius:20px;
+      background:var(--ink); color:#fff; font:inherit; font-size:14.5px; font-weight:600; letter-spacing:.01em;
+      box-shadow:0 8px 20px -8px rgba(0,0,0,.5); -webkit-tap-highlight-color:transparent; transition:transform .15s var(--ease);
+    }
+    .sbar-btn:active{transform:scale(.96);}
+  }
+  /* ================= PATCH: colour choice ================= */
+  .color-name{font-size:12px; letter-spacing:.04em; color:var(--graphite,#6b6b70); text-transform:none; font-weight:500;}
+  .swatches{display:flex; gap:12px; margin:2px 0 18px;}
+  .swatch{appearance:none; width:34px; height:34px; border-radius:50%; padding:3px; border:1px solid rgba(17,17,19,.16); background:#fff; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:border-color .2s, transform .15s;}
+  .swatch i{display:block; width:100%; height:100%; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(17,17,19,.12);}
+  .swatch:active{transform:scale(.92);}
+  .swatch.is-on{border-color:var(--ink,#111); box-shadow:0 0 0 1px var(--ink,#111);}
+  .swatch:focus-visible{outline:2px solid var(--ink,#111); outline-offset:3px;}
+  .product-overlay .viewer.is-black img{filter:none !important; -webkit-mask-image:none !important; mask-image:none !important; object-fit:contain !important;}
   /* ================= PATCH: rail drag zone + product photo viewer ================= */
   .rail-grip{
     position:absolute; left:0; right:0; top:0; height:31%; z-index:3;
     cursor:grab; touch-action:pan-y; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent;
     display:flex; justify-content:center; align-items:flex-start; padding-top:calc(var(--H) * .06);
   }
-  .rail-grip-cue{
+  .rail-grip-cue{display:none !important;}
+  .rail-grip-cue-old{
     display:flex; align-items:center; justify-content:center; width:46px; height:24px; border-radius:999px;
     background:rgba(255,255,255,.78); border:1px solid rgba(17,17,19,.1);
     -webkit-backdrop-filter:blur(10px) saturate(150%); backdrop-filter:blur(10px) saturate(150%);
@@ -3384,61 +3468,6 @@
 <body>
 
   <!-- ============ ENTRY GATE — asked once ever (localStorage), before anything else ============ -->
-  <div id="entryGate" class="entry-gate">
-    <div class="entry-objects" aria-hidden="true">
-      <div class="eo-item" data-id="laptop" data-w="531" data-h="393" data-lax="r" data-lay="t" data-lox="32" data-loy="0" data-pax="l" data-pay="t" data-pox="158" data-poy="10" data-pk="0.22" ><img width="531" height="393" src="assets/gate-01.9f882a28.webp" alt="" draggable="false" decoding="async" style="--i:0"></div>
-      <div class="eo-item" data-id="cassette" data-w="302" data-h="223" data-lax="l" data-lay="t" data-lox="18" data-loy="16" data-pax="l" data-pay="t" data-pox="6" data-poy="4" data-pk="0.36" ><img width="302" height="223" src="assets/gate-02.02e78236.webp" alt="" draggable="false" decoding="async" style="--i:1"></div>
-      <div class="eo-item" data-id="passport" data-w="310" data-h="288" data-lax="l" data-lay="t" data-lox="0" data-loy="280" data-pax="l" data-pay="t" data-pox="88" data-poy="34" data-pk="0.27" ><img width="310" height="288" src="assets/gate-03.1d5d8586.webp" alt="" draggable="false" decoding="async" style="--i:2"></div>
-      <div class="eo-item" data-id="cd" data-w="228" data-h="224" data-lax="r" data-lay="b" data-lox="133" data-loy="296" data-pax="l" data-pay="b" data-pox="8" data-poy="20" data-pk="0.38" ><img width="228" height="224" src="assets/gate-04.215edffe.webp" alt="" draggable="false" decoding="async" style="--i:3"></div>
-      <div class="eo-item eo-hero" data-id="creatine" data-w="150" data-h="233" data-lax="l" data-lay="t" data-lox="370.0" data-loy="420.0" data-pax="l" data-pay="b" data-pox="96" data-poy="4" data-pk="0.42" ><img width="150" height="233" src="assets/gate-05.a8f8e298.webp" alt="" draggable="false" decoding="async" style="--i:4"></div>
-      <div class="eo-item" data-id="orange" data-w="195" data-h="187" data-lax="r" data-lay="b" data-lox="10" data-loy="122" data-pax="r" data-pay="b" data-pox="76" data-poy="18" data-pk="0.46" ><img width="195" height="187" src="assets/gate-06.077decb2.webp" alt="" draggable="false" decoding="async" style="--i:5"></div>
-      <div class="eo-item" data-id="bottle" data-w="144" data-h="301" data-lax="l" data-lay="t" data-lox="240" data-loy="330" data-pax="r" data-pay="b" data-pox="14" data-poy="8" data-pk="0.34" ><img width="144" height="301" src="assets/gate-07.b3e8c56d.webp" alt="" draggable="false" decoding="async" style="--i:6"></div>
-      <div class="eo-item" data-id="case" data-w="110" data-h="104" data-lax="r" data-lay="t" data-lox="119" data-loy="385" data-pax="r" data-pay="t" data-pox="42" data-poy="46" data-pk="0.5" ><img width="110" height="104" src="assets/gate-08.ceb7ef61.webp" alt="" draggable="false" decoding="async" style="--i:7"></div>
-      <div class="eo-item" data-id="bud_l" data-w="56" data-h="58" data-lax="r" data-lay="t" data-lox="121" data-loy="319" data-pax="r" data-pay="t" data-pox="100" data-poy="20" data-pk="0.5" ><img width="56" height="58" src="assets/gate-09.4ed08040.webp" alt="" draggable="false" decoding="async" style="--i:8"></div>
-      <div class="eo-item" data-id="bud_r" data-w="48" data-h="64" data-lax="r" data-lay="t" data-lox="73" data-loy="352" data-pax="r" data-pay="t" data-pox="10" data-poy="12" data-pk="0.5" ><img width="48" height="64" src="assets/gate-10.82ffd223.webp" alt="" draggable="false" decoding="async" style="--i:9"></div>
-      <div class="eo-item" data-id="palette" data-w="285" data-h="323" data-lax="l" data-lay="b" data-lox="0" data-loy="134" data-pax="l" data-pay="t" data-pox="145" data-poy="260" data-pk="0.2" ><img width="285" height="323" src="assets/gate-11.7bf5f71e.webp" alt="" draggable="false" decoding="async" style="--i:12"></div>
-      <button type="button" class="eo-reset" aria-label="Put everything back">
-        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
-        <span>Reset</span>
-      </button>
-    </div>
-
-    <div class="entry-gate-inner">
-      <div class="entry-gate-question-wrap">
-        <p class="entry-gate-question-en">What's the one thing you always want to carry — but it always gets in the way?</p>
-        <span class="entry-gate-question-divider"></span>
-        <p class="entry-gate-question-ar">ما الشيء الذي تريد حمله معك دائمًا، لكنه يسبب لك إزعاجًا أو عائقًا؟</p>
-      </div>
-      <div class="entry-gate-options" id="entryGateOptions">
-        <button type="button" class="entry-gate-option" data-choice="phone">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-          <span>My phone</span>
-          <svg class="entry-gate-check" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button type="button" class="entry-gate-option" data-choice="laptop">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="11" rx="1.2"/><path d="M2 19.2h20l-1.6-3.2H3.6L2 19.2z"/></svg>
-          <span>My laptop</span>
-          <svg class="entry-gate-check" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button type="button" class="entry-gate-option" data-choice="headphones">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.5v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14.5" width="5" height="7" rx="2"/><rect x="17" y="14.5" width="5" height="7" rx="2"/></svg>
-          <span>My headphones</span>
-          <svg class="entry-gate-check" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button type="button" class="entry-gate-option" data-choice="water-bottle">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6v3l2 2v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7l2-2V2z"/><line x1="7" y1="11" x2="17" y2="11"/></svg>
-          <span>My water bottle</span>
-          <svg class="entry-gate-check" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button type="button" class="entry-gate-option" data-choice="book">
-          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-2-1.5-5-2-8-2v13.5c3 0 6 .5 8 2 2-1.5 5-2 8-2V4.5c-3 0-6 .5-8 2z"/><line x1="12" y1="6.5" x2="12" y2="20"/></svg>
-          <span>My book</span>
-          <svg class="entry-gate-check" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-      </div>
-      <button type="button" class="entry-gate-skip" id="entryGateSkip">Skip</button>
-    </div>
-  </div>
   <script>
     // Runs immediately, before anything else paints, so a visitor who already answered
     // never sees even a flash of the gate — this is asked once, ever, not once per session.
@@ -3557,18 +3586,18 @@
            To add a model later: duplicate the #productCard block, change the 3 image paths + name/price,
            and replace one empty ".product-card--soon" hanger. -->
       <div class="product-grid rail" id="rail">
-        <div class="product-card rail-item" id="productCard" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="productOverlay">
+        <div class="product-card rail-item" id="productCard" data-color="white" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="productOverlay">
           <div class="product-card-media rail-stage">
             <img class="rail-frame" data-frame="2" decoding="async" width="840" height="1175" src="assets/rail-hoodie-front.webp" alt="Vertex Hoodie, front view" draggable="false">
             <img class="rail-frame" data-frame="1" decoding="async" width="840" height="1175" src="assets/rail-hoodie-three-quarter.webp" alt="" aria-hidden="true" draggable="false">
             <img class="rail-frame" data-frame="0" decoding="async" width="840" height="1175" src="assets/rail-hoodie-side.webp" alt="" aria-hidden="true" draggable="false">
           </div>
-          <span class="rail-grip" aria-hidden="true"><i class="rail-grip-cue"><svg viewBox="0 0 40 14" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3L4 7l5 4M31 3l5 4-5 4M14 7h12"/></svg></i></span>
+          <span class="rail-grip" aria-hidden="true"></span>
           <button type="button" class="quick-add-btn" id="quickAddBtn" aria-label="Add to cart">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z"/><path d="M8 11V6a4 4 0 0 1 8 0v5"/></svg>
           </button>
           <div class="product-card-info">
-            <h2 class="product-card-name">Vertex Hoodie</h2>
+            <h2 class="product-card-name">Vertex Hoodie · Blanc</h2>
             <p class="product-card-price">8 900 DA</p>
           </div>
           <span class="product-card-cta">
@@ -3576,7 +3605,25 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </span>
         </div>
-        <div class="product-card product-card--soon" aria-hidden="true"><span class="rail-hanger"></span></div>
+        <div class="product-card rail-item" id="productCardBlack" data-color="black" data-rest-scale=".92" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="productOverlay">
+          <div class="product-card-media rail-stage">
+            <img class="rail-frame" data-frame="2" decoding="async" width="840" height="1175" src="assets/rail-hoodie-black-front.webp" alt="Vertex Hoodie in black, front view" draggable="false">
+            <img class="rail-frame" data-frame="1" decoding="async" width="840" height="1175" src="assets/rail-hoodie-black-three-quarter.webp" alt="" aria-hidden="true" draggable="false">
+            <img class="rail-frame" data-frame="0" decoding="async" width="840" height="1175" src="assets/rail-hoodie-black-side.webp" alt="" aria-hidden="true" draggable="false">
+          </div>
+          <span class="rail-grip" aria-hidden="true"></span>
+          <button type="button" class="quick-add-btn" id="quickAddBtnBlack" aria-label="Add to cart">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z"/><path d="M8 11V6a4 4 0 0 1 8 0v5"/></svg>
+          </button>
+          <div class="product-card-info">
+            <h2 class="product-card-name">Vertex Hoodie · Noir</h2>
+            <p class="product-card-price">8 900 DA</p>
+          </div>
+          <span class="product-card-cta">
+            View details
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </span>
+        </div>
         <div class="product-card product-card--soon" aria-hidden="true"><span class="rail-hanger"></span></div>
         <div class="product-card product-card--soon" aria-hidden="true"><span class="rail-hanger"></span></div>
         <div class="product-card product-card--soon" aria-hidden="true"><span class="rail-hanger"></span></div>
@@ -3683,11 +3730,12 @@
           <nav class="breadcrumb" aria-label="Breadcrumb">
             <a href="#" id="breadcrumbHome">AIRVER</a>
             <span aria-hidden="true">/</span>
-            <span class="is-current">Vertex Hoodie</span>
+            <span class="is-current" id="crumbName">Vertex Hoodie · Blanc</span>
           </nav>
           <span class="eyebrow">Outerwear</span>
           <h2 class="product-name">Vertex Hoodie</h2>
-          <p class="product-colorway">in Noir</p>
+          <p class="product-colorway">in Blanc</p>
+          <p class="product-tagline" id="productTagline">Soft white fleece with grey contour tape.</p>
           <ul class="desc-list">
             <li>Relaxed, true-to-size fit</li>
             <li>Heavyweight brushed cotton-fleece</li>
@@ -3803,7 +3851,14 @@
         <div class="reviews-layout" id="reviewsLayout"></div>
       </section>
     </div>
-  </div>
+  
+    <div class="sbar-wrap" id="stickyBuy" aria-hidden="true">
+      <div class="sbar" id="sbar">
+        <div class="sbar-info"><span class="sbar-price">8 900 DA</span><span class="sbar-sub" id="sbarSub">Vertex Hoodie</span></div>
+        <button type="button" class="sbar-btn" id="sbarBtn" tabindex="-1">Order Now</button>
+      </div>
+    </div>
+</div>
 
   <!-- BOTTOM SHEET FOR CHECKOUT -->
   <div class="bottom-sheet" id="checkoutBottomSheet">
@@ -4491,7 +4546,7 @@ try { ppBoot(); } catch(e) {}
 <script>
 /* Language switcher: English / Français (whole site). Isolated: starts after the page has loaded. */
 (function(){
-var FR = {"Choose size":"Choisir la taille","Added to cart":"Ajouté au panier","Reset":"Réinitialiser","Scroll down":"Faire défiler vers le bas","Main navigation":"Navigation principale","What's the one thing you always want to carry — but it always gets in the way?":"Quelle est la chose que vous voulez toujours emporter — mais qui vous encombre toujours ?","My phone":"Mon téléphone","My laptop":"Mon ordinateur portable","My headphones":"Mon casque","My water bottle":"Ma gourde","My book":"Mon livre","Skip":"Passer","Home":"Accueil","Catalog":"Catalogue","Contact":"Contact","Size guide":"Guide des tailles","Shipping":"Expédition","Returns":"Retours","Privacy":"Confidentialité","Terms":"Conditions","Cancel":"Annuler","Scroll":"Défiler","AIRVER — First Drop":"AIRVER — Premier drop","View details":"Voir les détails","More styles":"Plus de modèles","coming soon":"bientôt disponibles","Secure checkout — pay online or cash on delivery":"Paiement sécurisé — en ligne ou à la livraison","Cash on Delivery":"Paiement à la livraison","— Algiers, Algeria":"— Alger, Algérie","Questions about an order? Message us on WhatsApp — we usually reply within a day.":"Une question sur une commande ? Écrivez-nous sur WhatsApp — nous répondons généralement sous un jour.","© 2026 AIRVER. All rights reserved.":"© 2026 AIRVER. Tous droits réservés.","We use a small number of cookies to keep your cart and checkout working. No tracking or ad cookies. See our":"Nous utilisons quelques cookies pour faire fonctionner votre panier et votre commande. Aucun cookie de suivi ni publicitaire. Consultez notre","Privacy Policy":"Politique de confidentialité","Got it":"Compris","Back":"Retour","Outerwear":"Vêtements d'extérieur","in Noir":"en Noir","Relaxed, true-to-size fit":"Coupe ample, taille fidèle","Heavyweight brushed cotton-fleece":"Molleton de coton gratté, épais","Angular contrast stitching across front and back":"Surpiqûres contrastées angulaires sur le devant et le dos","Adjustable drawstring hood, fully lined":"Capuche à cordon ajustable, entièrement doublée","Full-length zip with matte hardware":"Zip intégral avec quincaillerie mate","Ribbed cuffs and hem for a secure fit":"Poignets et bas côtelés pour un maintien parfait","Front pockets with clean stitched edges":"Poches avant aux bords soigneusement surpiqués","Brushed fleece":"Molleton gratté","Water-resistant":"Résistant à l'eau","Limited batch":"Série limitée","New":"Nouveau","5% off when you pay online at checkout":"5 % de réduction si vous payez en ligne","We call to confirm every order before it ships — no surprise charges.":"Nous appelons pour confirmer chaque commande avant l'expédition — aucun frais surprise.","In stock — ships in 2–4 days":"En stock — expédié sous 2 à 4 jours","Size":"Taille","Quantity":"Quantité","Order Now — طلب الآن":"Commander maintenant","Add to Cart — أضف للسلة":"Ajouter au panier","Shipping & care":"Expédition et entretien","Returns & exchanges":"Retours et échanges","Customer reviews":"Avis clients","What customers say":"Ce que disent nos clients","Write a review":"Écrire un avis","Shipping Details":"Informations de livraison","Payment Method":"Mode de paiement","Secure Payment":"Paiement sécurisé","How would you like to pay?":"Comment souhaitez-vous payer ?","Pay in cash when your order reaches your door.":"Payez en espèces à la réception de votre commande.","Pay Now — Save 5%":"Payer maintenant — 5 % d'économie","Pay online with Edahabia or CIB — instant confirmation.":"Payez en ligne avec Edahabia ou CIB — confirmation instantanée.","Save 445 DA":"Économisez 445 DA","Continue":"Continuer","Full Name":"Nom complet","Phone Number":"Numéro de téléphone","Add a second phone number":"Ajouter un deuxième numéro","Secondary Phone":"Téléphone secondaire","Next":"Suivant","Delivery Options":"Options de livraison","To Home":"À domicile","To Office":"Au bureau","Wilaya":"Wilaya","Choose your wilaya":"Choisissez votre wilaya","Home Address":"Adresse du domicile","Office Address":"Adresse du bureau","Share your location (optional)":"Partager votre position (facultatif)","Makes it a little easier for delivery to find you.":"Aide le livreur à vous trouver plus facilement.","Confirm Order":"Confirmer la commande","Internet Payment (Edahabia / CIB)":"Paiement en ligne (Edahabia / CIB)","CIB Card":"Carte CIB","You'll pay on Chargily's secure page":"Vous paierez sur la page sécurisée de Chargily","Your card details are entered directly on Chargily — this site never sees or stores them.":"Vos données de carte sont saisies directement sur Chargily — ce site ne les voit ni ne les conserve jamais.","Nothing is charged yet — you'll confirm the amount on Chargily's page next.":"Rien n'est débité pour l'instant — vous confirmerez le montant sur la page de Chargily ensuite.","Continue to secure payment":"Continuer vers le paiement sécurisé","Delivery time depends on your location":"Le délai de livraison dépend de votre localisation","Product":"Produit","Your Cart":"Votre panier","Your cart is empty":"Votre panier est vide","You haven't added any products to your cart yet.":"Vous n'avez encore ajouté aucun produit à votre panier.","Browse now":"Parcourir","Total":"Total","Checkout":"Passer la commande","Confirm your order":"Confirmez votre commande","Almost done — review your details below.":"Presque terminé — vérifiez vos informations ci-dessous.","Save as Image":"Enregistrer en image","OK":"OK","Thank you!":"Merci !","Your order is in good hands. We will take care of it as soon as possible and call you shortly to confirm the details.":"Votre commande est entre de bonnes mains. Nous nous en occupons dans les plus brefs délais et vous appellerons rapidement pour confirmer les détails.","Done":"Terminé","Vertex Hoodie — relaxed, true-to-size fit":"Vertex Hoodie — coupe ample, taille fidèle","Chest (cm)":"Poitrine (cm)","Length (cm)":"Longueur (cm)","Sleeve (cm)":"Manche (cm)","Measured flat, garment laid out. Between sizes or want extra room? Size up — the Vertex is already cut relaxed.":"Mesures prises à plat, vêtement déplié. Entre deux tailles ou envie de plus d'aisance ? Prenez la taille au-dessus — le Vertex a déjà une coupe ample.","Verified customers only":"Réservé aux clients vérifiés","Enter the order number and phone number you used when ordering. We'll check that your order has shipped before you can review it.":"Saisissez le numéro de commande et le numéro de téléphone utilisés lors de votre achat. Nous vérifierons que votre commande a bien été expédiée avant que vous puissiez la noter.","Order number":"Numéro de commande","Phone number":"Numéro de téléphone","Verify order":"Vérifier la commande","Tap to rate":"Touchez pour noter","Your review":"Votre avis","Submit review":"Envoyer l'avis","Use a different order":"Utiliser une autre commande","Thank you":"Merci","Your review is now live on the product page.":"Votre avis est maintenant publié sur la page du produit.","AIRVER · Policies":"AIRVER · Politiques","Store":"Politiques","policies":"de la boutique","Shipping, returns, privacy and terms of sale — everything that applies to your order, together in one place.":"Livraison, retours, confidentialité et conditions de vente — tout ce qui s'applique à votre commande, réuni en un seul endroit.","Shipping & delivery":"Expédition et livraison","Privacy & your data":"Confidentialité et vos données","Terms of sale":"Conditions de vente","Section 01":"Section 01","Section 02":"Section 02","Section 03":"Section 03","Section 04":"Section 04","& delivery":"& livraison","& exchanges":"& échanges","& your data":"& vos données","of sale":"de vente","From our hands to your door, across Algeria.":"De nos mains jusqu'à votre porte, partout en Algérie.","Delivery":"Livraison","We deliver to every wilaya in Algeria. Orders ship within 2–4 business days of confirmation. Choose home or office delivery at checkout.":"Nous livrons dans toutes les wilayas d'Algérie. Les commandes sont expédiées sous 2 à 4 jours ouvrables après confirmation. Choisissez la livraison à domicile ou au bureau lors de la commande.","Confirming your order":"Confirmation de votre commande","We call the phone number on your order before it ships — this protects you from mistaken or fraudulent orders placed in your name.":"Nous appelons le numéro indiqué sur votre commande avant son expédition — cela vous protège des commandes erronées ou frauduleuses passées en votre nom.","Delivery cost":"Frais de livraison","The delivery fee depends on your wilaya and on whether you choose home or office delivery. It is shown in your total before you confirm — nothing extra is collected on arrival beyond that total.":"Les frais de livraison dépendent de votre wilaya et du mode choisi (domicile ou bureau). Ils sont indiqués dans votre total avant la confirmation — rien de plus n'est demandé à l'arrivée en dehors de ce total.","Clear, simple rules for exchanges and refunds.":"Des règles claires et simples pour les échanges et remboursements.","Exchanges":"Échanges","Wrong size? Message us on WhatsApp within 7 days of delivery. Exchanges are free as long as the item is unworn, unwashed, and still has its tags.":"Mauvaise taille ? Écrivez-nous sur WhatsApp dans les 7 jours suivant la livraison. Les échanges sont gratuits tant que l'article n'a pas été porté ni lavé et que ses étiquettes sont intactes.","Refunds":"Remboursements","For cash-on-delivery orders, you can refuse the parcel at the door at no cost. For online payments, refunds for eligible returns go back to the original payment method.":"Pour les commandes payées à la livraison, vous pouvez refuser le colis à la porte sans frais. Pour les paiements en ligne, les remboursements des retours éligibles sont effectués sur le moyen de paiement d'origine.","Damaged or wrong item":"Article endommagé ou erroné","If your order arrives damaged or isn't what you ordered, send us a photo on WhatsApp and we'll sort it out at our cost.":"Si votre commande arrive endommagée ou ne correspond pas à ce que vous avez commandé, envoyez-nous une photo sur WhatsApp et nous réglerons cela à nos frais.","What we collect, why, and the rights you have over it.":"Ce que nous collectons, pourquoi, et les droits dont vous disposez.","What we collect":"Ce que nous collectons","Only what's needed to deliver your order: name, phone number, delivery address and wilaya, and your chosen size and payment method.":"Uniquement ce qui est nécessaire pour livrer votre commande : nom, numéro de téléphone, adresse de livraison et wilaya, ainsi que la taille et le mode de paiement choisis.","How it’s used":"Utilisation de vos données","To confirm and ship your order — nothing else. We don't sell or share your information with advertisers.":"Pour confirmer et expédier votre commande — rien d'autre. Nous ne vendons ni ne partageons vos informations avec des annonceurs.","Where it’s stored":"Où elles sont conservées","Order data is stored securely with Supabase. Card details for online payments are entered directly on Chargily's secure payment page and never pass through our servers.":"Les données de commande sont stockées de manière sécurisée chez Supabase. Les données de carte pour les paiements en ligne sont saisies directement sur la page de paiement sécurisée de Chargily et ne transitent jamais par nos serveurs.","Your rights":"Vos droits","Under Algerian Law n° 18-07 on the protection of personal data, you can ask us to access, correct, or delete your information at any time — message us on WhatsApp.":"En vertu de la loi algérienne n° 18-07 relative à la protection des données personnelles, vous pouvez à tout moment demander à accéder à vos informations, à les corriger ou à les supprimer — écrivez-nous sur WhatsApp.","The simple terms behind every order.":"Les conditions simples derrière chaque commande.","Orders":"Commandes","Prices are listed in Algerian dinars (DZD). An order is confirmed once we've reached you by phone.":"Les prix sont indiqués en dinars algériens (DZD). Une commande est confirmée dès que nous vous avons joint par téléphone.","Payment":"Paiement","We accept cash on delivery and online payment by Edahabia or CIB card via Chargily's secure gateway.":"Nous acceptons le paiement à la livraison et le paiement en ligne par carte Edahabia ou CIB via la passerelle sécurisée de Chargily.","Our right to cancel":"Notre droit d'annuler","We may cancel and refund an order we can’t confirm by phone, or reasonably believe to be fraudulent.":"Nous pouvons annuler et rembourser une commande que nous ne parvenons pas à confirmer par téléphone, ou que nous avons des raisons de croire frauduleuse.","Governing law":"Droit applicable","These terms are governed by the laws of Algeria.":"Les présentes conditions sont régies par les lois de l'Algérie.","Previous":"Précédent","AIRVER · Made in Algeria":"AIRVER · Fabriqué en Algérie","Questions about any of the above? Message us on WhatsApp.":"Une question sur ce qui précède ? Écrivez-nous sur WhatsApp.","Back to top":"Retour en haut","Premium Sportswear":"Vêtements de sport premium","Made in Algeria":"Fabriqué en Algérie","Order Confirmation":"Confirmation de commande","Client":"Client","Phone":"Téléphone","Second Phone":"Deuxième téléphone","Address":"Adresse","Thank you for shopping with AIRVER":"Merci d'avoir acheté chez AIRVER","Put everything back":"Tout remettre en place","Search":"Rechercher","View cart":"Voir le panier","Open menu":"Ouvrir le menu","Menu":"Menu","Close menu":"Fermer le menu","Search products":"Rechercher des produits","Clear search":"Effacer la recherche","Add to cart":"Ajouter au panier","Chat with us on WhatsApp":"Discuter avec nous sur WhatsApp","Cookie notice":"Avis sur les cookies","Vertex Hoodie product details":"Détails du produit Vertex Hoodie","Breadcrumb":"Fil d'Ariane","Read customer reviews":"Lire les avis clients","Vertex Hoodie in Noir, front view":"Vertex Hoodie en Noir, vue de face","Vertex Hoodie in Noir, back view":"Vertex Hoodie en Noir, vue de dos","Vertex Hoodie in Noir, hood and zip detail":"Vertex Hoodie en Noir, détail de la capuche et du zip","Vertex Hoodie in Noir, back construction and stitch detail":"Vertex Hoodie en Noir, détail de la construction et des coutures du dos","Previous photo":"Photo précédente","Next photo":"Photo suivante","Decrease quantity":"Diminuer la quantité","Increase quantity":"Augmenter la quantité","Close checkout":"Fermer la commande","First and last name":"Prénom et nom","Street, neighbourhood, municipality":"Rue, quartier, commune","Share your location":"Partager votre position","Paste your Google Maps link":"Collez votre lien Google Maps","Copy link":"Copier le lien","Choose wilaya":"Choisir la wilaya","Close":"Fermer","Search wilaya or city…":"Rechercher une wilaya ou une ville…","Close cart":"Fermer le panier","Review your order":"Vérifiez votre commande","Your rating":"Votre note","How does it fit? How is the quality?":"Comment taille-t-il ? Comment est la qualité ?","Store policies":"Politiques de la boutique","Contents":"Sommaire","More policies":"Autres politiques","On the rail":"Sur le portant","carry on.":"carry on.","Hover to turn · Drag the top to rotate · Click to explore":"Survolez pour tourner · Faites glisser le haut pour pivoter · Cliquez pour explorer","Tap to turn · Drag the top to rotate · Tap again to explore":"Touchez pour tourner · Faites glisser le haut pour pivoter · Touchez à nouveau pour explorer","Vertex Hoodie in Noir, three-quarter view":"Vertex Hoodie en Noir, vue de trois quarts","Vertex Hoodie in Noir, side view":"Vertex Hoodie en Noir, vue de profil","Vertex Hoodie photos":"Photos du Vertex Hoodie","Photos":"Photos","Explore Vertex Hoodie":"Découvrir le Vertex Hoodie","More styles coming soon":"D'autres modèles arrivent bientôt","Vertex Hoodie, front view":"Vertex Hoodie, vue de face"};
+var FR = {"Color":"Couleur","Choose size":"Choisir la taille","Added to cart":"Ajouté au panier","Reset":"Réinitialiser","Scroll down":"Faire défiler vers le bas","Main navigation":"Navigation principale","What's the one thing you always want to carry — but it always gets in the way?":"Quelle est la chose que vous voulez toujours emporter — mais qui vous encombre toujours ?","My phone":"Mon téléphone","My laptop":"Mon ordinateur portable","My headphones":"Mon casque","My water bottle":"Ma gourde","My book":"Mon livre","Skip":"Passer","Home":"Accueil","Catalog":"Catalogue","Contact":"Contact","Size guide":"Guide des tailles","Shipping":"Expédition","Returns":"Retours","Privacy":"Confidentialité","Terms":"Conditions","Cancel":"Annuler","Scroll":"Défiler","AIRVER — First Drop":"AIRVER — Premier drop","View details":"Voir les détails","More styles":"Plus de modèles","coming soon":"bientôt disponibles","Secure checkout — pay online or cash on delivery":"Paiement sécurisé — en ligne ou à la livraison","Cash on Delivery":"Paiement à la livraison","— Algiers, Algeria":"— Alger, Algérie","Questions about an order? Message us on WhatsApp — we usually reply within a day.":"Une question sur une commande ? Écrivez-nous sur WhatsApp — nous répondons généralement sous un jour.","© 2026 AIRVER. All rights reserved.":"© 2026 AIRVER. Tous droits réservés.","We use a small number of cookies to keep your cart and checkout working. No tracking or ad cookies. See our":"Nous utilisons quelques cookies pour faire fonctionner votre panier et votre commande. Aucun cookie de suivi ni publicitaire. Consultez notre","Privacy Policy":"Politique de confidentialité","Got it":"Compris","Back":"Retour","Outerwear":"Vêtements d'extérieur","in Noir":"en Noir","Relaxed, true-to-size fit":"Coupe ample, taille fidèle","Heavyweight brushed cotton-fleece":"Molleton de coton gratté, épais","Angular contrast stitching across front and back":"Surpiqûres contrastées angulaires sur le devant et le dos","Adjustable drawstring hood, fully lined":"Capuche à cordon ajustable, entièrement doublée","Full-length zip with matte hardware":"Zip intégral avec quincaillerie mate","Ribbed cuffs and hem for a secure fit":"Poignets et bas côtelés pour un maintien parfait","Front pockets with clean stitched edges":"Poches avant aux bords soigneusement surpiqués","Brushed fleece":"Molleton gratté","Water-resistant":"Résistant à l'eau","Limited batch":"Série limitée","New":"Nouveau","5% off when you pay online at checkout":"5 % de réduction si vous payez en ligne","We call to confirm every order before it ships — no surprise charges.":"Nous appelons pour confirmer chaque commande avant l'expédition — aucun frais surprise.","In stock — ships in 2–4 days":"En stock — expédié sous 2 à 4 jours","Size":"Taille","Quantity":"Quantité","Order Now — طلب الآن":"Commander maintenant","Add to Cart — أضف للسلة":"Ajouter au panier","Shipping & care":"Expédition et entretien","Returns & exchanges":"Retours et échanges","Customer reviews":"Avis clients","What customers say":"Ce que disent nos clients","Write a review":"Écrire un avis","Shipping Details":"Informations de livraison","Payment Method":"Mode de paiement","Secure Payment":"Paiement sécurisé","How would you like to pay?":"Comment souhaitez-vous payer ?","Pay in cash when your order reaches your door.":"Payez en espèces à la réception de votre commande.","Pay Now — Save 5%":"Payer maintenant — 5 % d'économie","Pay online with Edahabia or CIB — instant confirmation.":"Payez en ligne avec Edahabia ou CIB — confirmation instantanée.","Save 445 DA":"Économisez 445 DA","Continue":"Continuer","Full Name":"Nom complet","Phone Number":"Numéro de téléphone","Add a second phone number":"Ajouter un deuxième numéro","Secondary Phone":"Téléphone secondaire","Next":"Suivant","Delivery Options":"Options de livraison","To Home":"À domicile","To Office":"Au bureau","Wilaya":"Wilaya","Choose your wilaya":"Choisissez votre wilaya","Home Address":"Adresse du domicile","Office Address":"Adresse du bureau","Share your location (optional)":"Partager votre position (facultatif)","Makes it a little easier for delivery to find you.":"Aide le livreur à vous trouver plus facilement.","Confirm Order":"Confirmer la commande","Internet Payment (Edahabia / CIB)":"Paiement en ligne (Edahabia / CIB)","CIB Card":"Carte CIB","You'll pay on Chargily's secure page":"Vous paierez sur la page sécurisée de Chargily","Your card details are entered directly on Chargily — this site never sees or stores them.":"Vos données de carte sont saisies directement sur Chargily — ce site ne les voit ni ne les conserve jamais.","Nothing is charged yet — you'll confirm the amount on Chargily's page next.":"Rien n'est débité pour l'instant — vous confirmerez le montant sur la page de Chargily ensuite.","Continue to secure payment":"Continuer vers le paiement sécurisé","Delivery time depends on your location":"Le délai de livraison dépend de votre localisation","Product":"Produit","Your Cart":"Votre panier","Your cart is empty":"Votre panier est vide","You haven't added any products to your cart yet.":"Vous n'avez encore ajouté aucun produit à votre panier.","Browse now":"Parcourir","Total":"Total","Checkout":"Passer la commande","Confirm your order":"Confirmez votre commande","Almost done — review your details below.":"Presque terminé — vérifiez vos informations ci-dessous.","Save as Image":"Enregistrer en image","OK":"OK","Thank you!":"Merci !","Your order is in good hands. We will take care of it as soon as possible and call you shortly to confirm the details.":"Votre commande est entre de bonnes mains. Nous nous en occupons dans les plus brefs délais et vous appellerons rapidement pour confirmer les détails.","Done":"Terminé","Vertex Hoodie — relaxed, true-to-size fit":"Vertex Hoodie — coupe ample, taille fidèle","Chest (cm)":"Poitrine (cm)","Length (cm)":"Longueur (cm)","Sleeve (cm)":"Manche (cm)","Measured flat, garment laid out. Between sizes or want extra room? Size up — the Vertex is already cut relaxed.":"Mesures prises à plat, vêtement déplié. Entre deux tailles ou envie de plus d'aisance ? Prenez la taille au-dessus — le Vertex a déjà une coupe ample.","Verified customers only":"Réservé aux clients vérifiés","Enter the order number and phone number you used when ordering. We'll check that your order has shipped before you can review it.":"Saisissez le numéro de commande et le numéro de téléphone utilisés lors de votre achat. Nous vérifierons que votre commande a bien été expédiée avant que vous puissiez la noter.","Order number":"Numéro de commande","Phone number":"Numéro de téléphone","Verify order":"Vérifier la commande","Tap to rate":"Touchez pour noter","Your review":"Votre avis","Submit review":"Envoyer l'avis","Use a different order":"Utiliser une autre commande","Thank you":"Merci","Your review is now live on the product page.":"Votre avis est maintenant publié sur la page du produit.","AIRVER · Policies":"AIRVER · Politiques","Store":"Politiques","policies":"de la boutique","Shipping, returns, privacy and terms of sale — everything that applies to your order, together in one place.":"Livraison, retours, confidentialité et conditions de vente — tout ce qui s'applique à votre commande, réuni en un seul endroit.","Shipping & delivery":"Expédition et livraison","Privacy & your data":"Confidentialité et vos données","Terms of sale":"Conditions de vente","Section 01":"Section 01","Section 02":"Section 02","Section 03":"Section 03","Section 04":"Section 04","& delivery":"& livraison","& exchanges":"& échanges","& your data":"& vos données","of sale":"de vente","From our hands to your door, across Algeria.":"De nos mains jusqu'à votre porte, partout en Algérie.","Delivery":"Livraison","We deliver to every wilaya in Algeria. Orders ship within 2–4 business days of confirmation. Choose home or office delivery at checkout.":"Nous livrons dans toutes les wilayas d'Algérie. Les commandes sont expédiées sous 2 à 4 jours ouvrables après confirmation. Choisissez la livraison à domicile ou au bureau lors de la commande.","Confirming your order":"Confirmation de votre commande","We call the phone number on your order before it ships — this protects you from mistaken or fraudulent orders placed in your name.":"Nous appelons le numéro indiqué sur votre commande avant son expédition — cela vous protège des commandes erronées ou frauduleuses passées en votre nom.","Delivery cost":"Frais de livraison","The delivery fee depends on your wilaya and on whether you choose home or office delivery. It is shown in your total before you confirm — nothing extra is collected on arrival beyond that total.":"Les frais de livraison dépendent de votre wilaya et du mode choisi (domicile ou bureau). Ils sont indiqués dans votre total avant la confirmation — rien de plus n'est demandé à l'arrivée en dehors de ce total.","Clear, simple rules for exchanges and refunds.":"Des règles claires et simples pour les échanges et remboursements.","Exchanges":"Échanges","Wrong size? Message us on WhatsApp within 7 days of delivery. Exchanges are free as long as the item is unworn, unwashed, and still has its tags.":"Mauvaise taille ? Écrivez-nous sur WhatsApp dans les 7 jours suivant la livraison. Les échanges sont gratuits tant que l'article n'a pas été porté ni lavé et que ses étiquettes sont intactes.","Refunds":"Remboursements","For cash-on-delivery orders, you can refuse the parcel at the door at no cost. For online payments, refunds for eligible returns go back to the original payment method.":"Pour les commandes payées à la livraison, vous pouvez refuser le colis à la porte sans frais. Pour les paiements en ligne, les remboursements des retours éligibles sont effectués sur le moyen de paiement d'origine.","Damaged or wrong item":"Article endommagé ou erroné","If your order arrives damaged or isn't what you ordered, send us a photo on WhatsApp and we'll sort it out at our cost.":"Si votre commande arrive endommagée ou ne correspond pas à ce que vous avez commandé, envoyez-nous une photo sur WhatsApp et nous réglerons cela à nos frais.","What we collect, why, and the rights you have over it.":"Ce que nous collectons, pourquoi, et les droits dont vous disposez.","What we collect":"Ce que nous collectons","Only what's needed to deliver your order: name, phone number, delivery address and wilaya, and your chosen size and payment method.":"Uniquement ce qui est nécessaire pour livrer votre commande : nom, numéro de téléphone, adresse de livraison et wilaya, ainsi que la taille et le mode de paiement choisis.","How it’s used":"Utilisation de vos données","To confirm and ship your order — nothing else. We don't sell or share your information with advertisers.":"Pour confirmer et expédier votre commande — rien d'autre. Nous ne vendons ni ne partageons vos informations avec des annonceurs.","Where it’s stored":"Où elles sont conservées","Order data is stored securely with Supabase. Card details for online payments are entered directly on Chargily's secure payment page and never pass through our servers.":"Les données de commande sont stockées de manière sécurisée chez Supabase. Les données de carte pour les paiements en ligne sont saisies directement sur la page de paiement sécurisée de Chargily et ne transitent jamais par nos serveurs.","Your rights":"Vos droits","Under Algerian Law n° 18-07 on the protection of personal data, you can ask us to access, correct, or delete your information at any time — message us on WhatsApp.":"En vertu de la loi algérienne n° 18-07 relative à la protection des données personnelles, vous pouvez à tout moment demander à accéder à vos informations, à les corriger ou à les supprimer — écrivez-nous sur WhatsApp.","The simple terms behind every order.":"Les conditions simples derrière chaque commande.","Orders":"Commandes","Prices are listed in Algerian dinars (DZD). An order is confirmed once we've reached you by phone.":"Les prix sont indiqués en dinars algériens (DZD). Une commande est confirmée dès que nous vous avons joint par téléphone.","Payment":"Paiement","We accept cash on delivery and online payment by Edahabia or CIB card via Chargily's secure gateway.":"Nous acceptons le paiement à la livraison et le paiement en ligne par carte Edahabia ou CIB via la passerelle sécurisée de Chargily.","Our right to cancel":"Notre droit d'annuler","We may cancel and refund an order we can’t confirm by phone, or reasonably believe to be fraudulent.":"Nous pouvons annuler et rembourser une commande que nous ne parvenons pas à confirmer par téléphone, ou que nous avons des raisons de croire frauduleuse.","Governing law":"Droit applicable","These terms are governed by the laws of Algeria.":"Les présentes conditions sont régies par les lois de l'Algérie.","Previous":"Précédent","AIRVER · Made in Algeria":"AIRVER · Fabriqué en Algérie","Questions about any of the above? Message us on WhatsApp.":"Une question sur ce qui précède ? Écrivez-nous sur WhatsApp.","Back to top":"Retour en haut","Premium Sportswear":"Vêtements de sport premium","Made in Algeria":"Fabriqué en Algérie","Order Confirmation":"Confirmation de commande","Client":"Client","Phone":"Téléphone","Second Phone":"Deuxième téléphone","Address":"Adresse","Thank you for shopping with AIRVER":"Merci d'avoir acheté chez AIRVER","Put everything back":"Tout remettre en place","Search":"Rechercher","View cart":"Voir le panier","Open menu":"Ouvrir le menu","Menu":"Menu","Close menu":"Fermer le menu","Search products":"Rechercher des produits","Clear search":"Effacer la recherche","Add to cart":"Ajouter au panier","Chat with us on WhatsApp":"Discuter avec nous sur WhatsApp","Cookie notice":"Avis sur les cookies","Vertex Hoodie product details":"Détails du produit Vertex Hoodie","Breadcrumb":"Fil d'Ariane","Read customer reviews":"Lire les avis clients","Vertex Hoodie in Noir, front view":"Vertex Hoodie en Noir, vue de face","Vertex Hoodie in Noir, back view":"Vertex Hoodie en Noir, vue de dos","Vertex Hoodie in Noir, hood and zip detail":"Vertex Hoodie en Noir, détail de la capuche et du zip","Vertex Hoodie in Noir, back construction and stitch detail":"Vertex Hoodie en Noir, détail de la construction et des coutures du dos","Previous photo":"Photo précédente","Next photo":"Photo suivante","Decrease quantity":"Diminuer la quantité","Increase quantity":"Augmenter la quantité","Close checkout":"Fermer la commande","First and last name":"Prénom et nom","Street, neighbourhood, municipality":"Rue, quartier, commune","Share your location":"Partager votre position","Paste your Google Maps link":"Collez votre lien Google Maps","Copy link":"Copier le lien","Choose wilaya":"Choisir la wilaya","Close":"Fermer","Search wilaya or city…":"Rechercher une wilaya ou une ville…","Close cart":"Fermer le panier","Review your order":"Vérifiez votre commande","Your rating":"Votre note","How does it fit? How is the quality?":"Comment taille-t-il ? Comment est la qualité ?","Store policies":"Politiques de la boutique","Contents":"Sommaire","More policies":"Autres politiques","On the rail":"Sur le portant","carry on.":"carry on.","Hover to turn · Drag the top to rotate · Click to explore":"Survolez pour tourner · Faites glisser le haut pour pivoter · Cliquez pour explorer","Tap to turn · Drag the top to rotate · Tap again to explore":"Touchez pour tourner · Faites glisser le haut pour pivoter · Touchez à nouveau pour explorer","Vertex Hoodie in Noir, three-quarter view":"Vertex Hoodie en Noir, vue de trois quarts","Vertex Hoodie in Noir, side view":"Vertex Hoodie en Noir, vue de profil","Vertex Hoodie photos":"Photos du Vertex Hoodie","Photos":"Photos","Explore Vertex Hoodie":"Découvrir le Vertex Hoodie","More styles coming soon":"D'autres modèles arrivent bientôt","Vertex Hoodie, front view":"Vertex Hoodie, vue de face"};
 var RULES = [["^Step (\\d+) of (\\d+)$","Étape $1 sur $2"],["^Save ([\\d\\s.,\\u202f\\u00a0]+) DA$","Économisez $1 DA"],["^Pay Now — Save (\\d+)%$","Payer maintenant — $1 % d'économie"]].map(function(r){ return [new RegExp(r[0]), r[1]]; });
 var KEEP = '[data-i18n-keep], .lang-switch';
 var ATTRS = ['placeholder','aria-label','alt','title','data-placeholder'];
@@ -4627,18 +4682,21 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
 
     var items = [].slice.call(grid.querySelectorAll('.rail-item')).map(function(el){
       var frames = []; [].forEach.call(el.querySelectorAll('.rail-frame'), function(im){ frames[+im.getAttribute('data-frame')] = im; });
-      return { el: el, stage: el.querySelector('.rail-stage'), qa: el.querySelector('.quick-add-btn'), frames: frames, p: 0, v: 0, t: 0, raf: 0, last: 0, turned: false };
+      return { rest: parseFloat(el.getAttribute('data-rest-scale')) || 1, el: el, stage: el.querySelector('.rail-stage'), qa: el.querySelector('.quick-add-btn'), frames: frames, p: 0, v: 0, t: 0, raf: 0, last: 0, turned: false };
     });
 
     function render(it){
       var p = clamp(it.p, 0, 1), f = it.frames;
       var a1 = seg(p, .16, .34), a2 = seg(p, .62, .8);
-      if(f[0]) f[0].style.opacity = 1 - a1;
-      if(f[1]) f[1].style.opacity = a1 * (1 - a2);
+      /* poses are stacked side < three-quarter < front; the lower one stays fully opaque until the next one is fully in,
+         so the garment never goes see-through mid-turn (that dip is what looked like a flash) */
+      if(f[0]) f[0].style.opacity = a1 >= .999 ? 0 : 1;
+      if(f[1]) f[1].style.opacity = a2 >= .999 ? 0 : a1;
       if(f[2]) f[2].style.opacity = a2;
       var mix = 4 * (a1 * (1 - a1) + a2 * (1 - a2)) / 2;           /* 1 at the middle of a cross-fade */
       var sway = reduce ? 0 : clamp(-it.v * 1.5, -3, 3);
-      it.stage.style.transform = 'rotate(' + sway.toFixed(2) + 'deg) scaleX(' + (1 - .05 * mix).toFixed(4) + ')';
+      var sc = it.rest + (1 - it.rest) * p;
+      it.stage.style.transform = 'rotate(' + sway.toFixed(2) + 'deg) scale(' + sc.toFixed(4) + ') scaleX(' + (1 - .05 * mix).toFixed(4) + ')';
       it.el.style.setProperty('--p', p.toFixed(4));
       var q = seg(p, .72, 1);
       if(it.qa){ it.qa.style.setProperty('--qa', q.toFixed(3)); it.qa.classList.toggle('is-live', q > .6); }
@@ -4681,25 +4739,30 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
     var lastDragEnd = 0, drag = null, POSES = [0, .5, 1];
     function nearest(p){ var b = 0; for(var i = 1; i < POSES.length; i++){ if(Math.abs(POSES[i] - p) < Math.abs(POSES[b] - p)) b = i; } return b; }
     items.forEach(function(it){
-      var grip = it.el.querySelector('.rail-grip'); if(!grip) return;
-      grip.addEventListener('pointerdown', function(e){
+      var grip = it.el.querySelector('.rail-grip'); if(!grip) return; var host = it.el;
+      host.addEventListener('pointerdown', function(e){
         if(e.pointerType === 'mouse' && e.button !== 0) return;
-        drag = { id: e.pointerId, x0: e.clientX, p0: it.p, moved: false, px: it.p, pt: e.timeStamp, vel: 0 };
-        try{ grip.setPointerCapture(e.pointerId); }catch(_){}
+        var t = e.target, inGrip = t.closest && t.closest('.rail-grip');
+        if(t.closest && t.closest('.quick-add-btn')) return;
+        if(e.pointerType !== 'touch' && !inGrip) return;
+        drag = { touch: e.pointerType === 'touch', id: e.pointerId, x0: e.clientX, p0: it.p, moved: false, px: it.p, pt: e.timeStamp, vel: 0 };
+        try{ host.setPointerCapture(e.pointerId); }catch(_){}
       });
-      grip.addEventListener('pointermove', function(e){
+      host.addEventListener('pointermove', function(e){
         if(!drag || drag.id !== e.pointerId) return;
         var dx = e.clientX - drag.x0;
         if(!drag.moved){
           if(Math.abs(dx) < 5) return;
           drag.moved = true; drag.x0 = e.clientX; drag.p0 = it.p; dx = 0;
           if(it.raf){ cancelAnimationFrame(it.raf); it.raf = 0; }
+          drag.dir = (drag.p0 > .5) ? -1 : 1;
+          items.forEach(function(o){ if(o !== it && o.turned) turn(o, false); });   /* the other garment goes back to its place */
           it.v = 0; it.turned = true; it.el.classList.add('is-turned', 'is-dragging');
           mirror(it); setState('product');
           document.documentElement.classList.add('rail-dragging');
         }
         var span = Math.max(120, it.stage.offsetWidth * .5);
-        var np = clamp(drag.p0 + dx / span, 0, 1);
+        var np = clamp(drag.p0 + (drag.touch ? drag.dir * Math.abs(dx) : dx) / span, 0, 1);
         var dt = Math.max(1, e.timeStamp - drag.pt);
         drag.vel = .65 * drag.vel + .35 * ((np - drag.px) / dt * 1000);
         drag.px = np; drag.pt = e.timeStamp;
@@ -4708,16 +4771,19 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
       function end(e){
         if(!drag || drag.id !== e.pointerId) return;
         var d = drag; drag = null;
-        try{ grip.releasePointerCapture(e.pointerId); }catch(_){}
+        try{ host.releasePointerCapture(e.pointerId); }catch(_){}
         document.documentElement.classList.remove('rail-dragging'); it.el.classList.remove('is-dragging');
         if(!d.moved) return;
         lastDragEnd = Date.now();
         var vel = (e.timeStamp - d.pt > 90) ? 0 : d.vel;
-        it.v = 0; go(it, POSES[nearest(clamp(it.p + vel * .16, 0, 1))]);
+        it.v = 0;
+        var fin = clamp(it.p + vel * .16, 0, 1);
+        if(!d.touch) go(it, POSES[nearest(fin)]);
+        else if(fin > .14){ turn(it, true); go(it, 1); } else { turn(it, false); }
       }
-      grip.addEventListener('pointerup', end);
-      grip.addEventListener('pointercancel', end);
-      grip.addEventListener('lostpointercapture', end);
+      host.addEventListener('pointerup', end);
+      host.addEventListener('pointercancel', end);
+      host.addEventListener('lostpointercapture', end);
       it.el.addEventListener('keydown', function(e){
         if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         e.preventDefault(); it.turned = true; it.el.classList.add('is-turned'); mirror(it); setState('product');
@@ -4739,7 +4805,13 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
       if(e.target.closest('.quick-add-btn')) return;
       var it = items.filter(function(i){ return i.el === el; })[0];
       if(e.isTrusted && Date.now() - lastDragEnd < 450){ e.stopPropagation(); e.preventDefault(); return; }
-      if(it && !it.turned) turn(it, true);
+      if(it && !it.turned){
+        turn(it, true);
+        if(lastPtr === 'touch' && e.isTrusted){            /* phone: the first tap only turns it; the second tap opens the page */
+          items.forEach(function(o){ if(o !== it && o.turned) turn(o, false); });
+          e.stopPropagation(); e.preventDefault();
+        }
+      }
     }, true);
     document.addEventListener('pointerdown', function(e){
       if(e.target.closest && (e.target.closest('.rail-item') || e.target.closest('#railExplore'))) return;
@@ -4748,14 +4820,14 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
 
     if(explore){
       explore.addEventListener('click', function(){
-        var card = document.getElementById('productCard'); if(card) card.click();
+        var cur = items.filter(function(i){ return i.turned; })[0] || items[0]; if(cur) cur.el.click();
       });
     }
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
-<script defer src="assets/app1.fix1.js"></script>
+<script defer src="assets/app1.fix3.js"></script>
 
 <!-- Export invoice: clean white receipt captured for "Save as Image" -->
 <div id="invoiceSheet" aria-hidden="true">
@@ -4789,7 +4861,6 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
     </div>
   </div>
 </div>
-<script defer src="assets/app2.b397127f.js"></script>
 <script>
 /* Product page photo viewer: 3 photos, up/down buttons, dots, swipe/drag, arrow keys.
    Takes over the viewer after the page script has run, so the photo count always matches the markup. */
@@ -4867,11 +4938,14 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
   function ease(t){ return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
   function measure(){
     var r = slot.getBoundingClientRect(), d = dock.getBoundingClientRect(), n = nav.getBoundingClientRect();
-    S.w = r.width || 1; S.cx = r.left + r.width / 2; S.cy = r.top + r.height / 2;
-    E.w = d.width || 46; E.cx = d.left + d.width / 2; E.cy = n.top + n.height / 2;
-    D = clamp(window.innerHeight * .5, 260, 520);
+    if(r.width < 20 || d.width < 4) return false;              /* layout not ready yet: keep the last good numbers */
+    var sy = window.pageYOffset || document.documentElement.scrollTop || 0;
+    S.w = r.width; S.cx = r.left + r.width / 2; S.cy = r.top + sy + r.height / 2;   /* where the logo starts = its place at scroll 0, whatever the scroll is now */
+    E.w = d.width; E.cx = d.left + d.width / 2; E.cy = n.top + n.height / 2;
+    D = clamp(Math.max(window.innerHeight, 480) * .5, 260, 520);
     brand.style.width = S.w + 'px';
     document.documentElement.style.setProperty('--nav-h', n.height.toFixed(1) + 'px');
+    return true;
   }
   function render(p){
     var e = ease(p), w = S.w + (E.w - S.w) * e,
@@ -4899,14 +4973,18 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
     tgt = clamp((window.pageYOffset || document.documentElement.scrollTop || 0) / D, 0, 1);
     if(!raf) raf = requestAnimationFrame(frame);
   }
-  function remeasure(){ measure(); render(cur); }
+  var lastW = window.innerWidth, settleT = 0;
+  function remeasure(){ if(measure()) render(cur); }
+  function settle(){ clearTimeout(settleT); settleT = setTimeout(function(){ onScroll(); cur = tgt; render(cur); }, 140); }   /* never stay stuck half-way */
   brand.addEventListener('click', function(){ if(docked) window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', function(){ remeasure(); onScroll(); });
+  window.addEventListener('scroll', function(){ onScroll(); settle(); }, { passive: true });
+  window.addEventListener('resize', function(){ if(window.innerWidth !== lastW){ lastW = window.innerWidth; remeasure(); } onScroll(); settle(); });   /* phone URL-bar show/hide only changes the height: ignore it */
+  window.addEventListener('pageshow', function(){ remeasure(); onScroll(); settle(); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ remeasure(); onScroll(); settle(); } });
   window.addEventListener('orientationchange', function(){ setTimeout(function(){ remeasure(); onScroll(); }, 250); });
   window.addEventListener('load', function(){ remeasure(); onScroll(); });
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ remeasure(); onScroll(); });
-  measure();
+  if(!measure()){ var tries = 0; (function again(){ if(measure() || ++tries > 40){ onScroll(); settle(); } else requestAnimationFrame(again); })(); }
   tgt = cur = clamp((window.pageYOffset || document.documentElement.scrollTop || 0) / D, 0, 1);
   render(cur);
   brand.classList.add('is-ready');
@@ -5041,5 +5119,36 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
 })();
 </script>
 <div id="tsBox" aria-live="polite"></div>
+<script>
+/* phone: a glass "Order Now" bar appears at the bottom whenever the real Order Now button is out of view */
+(function(){
+  var ov=document.getElementById('productOverlay'), btn=document.getElementById('orderNowBtn'), bar=document.getElementById('sbar'),
+      go=document.getElementById('sbarBtn'), sub=document.getElementById('sbarSub'), wrap=document.getElementById('stickyBuy');
+  if(!ov||!btn||!bar||!go||!window.IntersectionObserver) return;
+  var visible=true;
+  function sync(){
+    var on=!visible && ov.classList.contains('is-open') && ov.classList.contains('is-loaded');
+    bar.classList.toggle('is-on',on); wrap.setAttribute('aria-hidden',on?'false':'true'); go.tabIndex=on?0:-1;
+    if(on){ var c=document.getElementById('crumbName'); sub.textContent=c?c.textContent:'Vertex Hoodie'; }
+  }
+  new IntersectionObserver(function(es){ visible=es[es.length-1].isIntersecting; sync(); },{root:ov,threshold:.35}).observe(btn);
+  if(window.MutationObserver) new MutationObserver(sync).observe(ov,{attributes:true,attributeFilter:['class']});
+  go.addEventListener('click',function(){
+    if(!document.querySelector('#sizes .size-btn.is-selected')){
+      var z=document.getElementById('sizes'); if(z) z.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(function(){ btn.click(); },480);
+    } else btn.click();
+  });
+})();
+</script>
+<script>
+(function(){
+  var nav=document.querySelector('.nav'), foot=document.getElementById('siteFooter'); if(!nav||!foot) return;
+  var t=0;
+  function chk(){ t=0; var h=nav.offsetHeight||64, r=foot.getBoundingClientRect(); nav.classList.toggle('on-dark', r.top < h*.5 && r.bottom > h*.5); }
+  function q(){ if(!t) t=requestAnimationFrame(chk); }
+  window.addEventListener('scroll',q,{passive:true}); window.addEventListener('resize',q); chk();
+})();
+</script>
 </body>
 </html>
