@@ -237,9 +237,19 @@ const nav = document.getElementById('nav');
   const viewerEl = document.getElementById('viewer');
   const COLORS = {
     white: { label: 'Blanc', tag: 'Soft white fleece with grey contour tape.', imgs: viewerImgs.map(i => i.getAttribute('src')) },
-    black: { label: 'Noir', tag: 'Deep matte black. Grey contour tape. White zip.', imgs: ['assets/view-black-front.webp', 'assets/view-black-three-quarter.webp', 'assets/view-black-side.webp'] }
+    black: {
+      label: 'Noir',
+      tag: 'Deep matte black. Grey contour tape. White zip.',
+      imgs: [
+        'assets/hoodie-1.427e890a.webp',
+        'assets/hoodie-2.c8bdee22.webp',
+        'assets/hoodie-3.bbb99df8.webp',
+        'assets/hoodie-4.ed13480e.webp'
+      ]
+    }
   };
   let currentColor = 'white';
+  const selectedSizeByColor = { white: null, black: null };
   const colorNameEl = document.getElementById('colorName');
   const colorwayEl = document.querySelector('.product-colorway');
   const swatchEls = Array.from(document.querySelectorAll('#swatches .swatch'));
@@ -250,10 +260,33 @@ const nav = document.getElementById('nav');
     COLORS[c].imgs.forEach(src => { const im = new Image(); im.decoding = 'async'; im.src = src; });
   }
   function colorLabel(c) { return (COLORS[c || 'white'] || COLORS.white).label; }
+  function applySelectedSizeUI() {
+    const curSize = selectedSizeByColor[currentColor] || null;
+    document.querySelectorAll('#sizes .size-btn').forEach(b => {
+      const s = b.dataset.size || b.textContent.trim();
+      const on = (curSize !== null && s === curSize);
+      b.classList.toggle('is-selected', on);
+      b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    if (curSize) {
+      reserveSize(curSize);
+      const sEl = document.getElementById('sizes');
+      if (sEl) sEl.classList.remove('is-invalid');
+      const errEl = document.getElementById('sizeErrorMsg');
+      if (errEl) errEl.style.display = 'none';
+    } else {
+      clearAllSizeNotes();
+    }
+  }
   function setColor(c) {
     if (!COLORS[c]) c = 'white';
     currentColor = c; preloadColor(c);
-    viewerImgs.forEach((img, i) => { const src = COLORS[c].imgs[i]; if (src && img.getAttribute('src') !== src) img.src = src; });
+    if (typeof window.setViewerColor === 'function') {
+      window.setViewerColor(c);
+    } else {
+      window._pendingViewerColor = c;
+      viewerImgs.forEach((img, i) => { const src = COLORS[c].imgs[i]; if (src && img.getAttribute('src') !== src) img.src = src; });
+    }
     if (viewerEl) viewerEl.classList.toggle('is-black', c === 'black');
     overlay.classList.toggle('is-noir', c === 'black');
     const tg = document.getElementById('productTagline'); if (tg) tg.textContent = COLORS[c].tag;
@@ -261,6 +294,11 @@ const nav = document.getElementById('nav');
     if (colorNameEl) colorNameEl.textContent = COLORS[c].label;
     if (colorwayEl) colorwayEl.textContent = 'in ' + COLORS[c].label;
     swatchEls.forEach(b => { const on = b.dataset.color === c; b.classList.toggle('is-on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    applySelectedSizeUI();
+    const sEl = document.getElementById('sizes');
+    if (sEl) sEl.classList.remove('is-invalid');
+    const errEl = document.getElementById('sizeErrorMsg');
+    if (errEl) errEl.style.display = 'none';
   }
   swatchEls.forEach(b => b.addEventListener('click', () => setColor(b.dataset.color)));
 
@@ -302,11 +340,11 @@ const nav = document.getElementById('nav');
   });
 
   // Size selector
-  document.querySelectorAll('.size-btn').forEach(btn => {
+  document.querySelectorAll('#sizes .size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('is-selected'));
-      btn.classList.add('is-selected');
-      reserveSize(btn.dataset.size || btn.textContent.trim());
+      const s = btn.dataset.size || btn.textContent.trim();
+      selectedSizeByColor[currentColor] = s;
+      applySelectedSizeUI();
     });
   });
 
@@ -1383,7 +1421,6 @@ const nav = document.getElementById('nav');
 
   const stepPaymentMethod = document.getElementById('stepPaymentMethod');
   function openCheckout(startAtPaymentStep) {
-    resetCheckoutState();
     updatePaymentOptionsForCart();
     selectPaymentOption(selectedPaymentMethod);
     if (startAtPaymentStep) {
@@ -1449,13 +1486,17 @@ const nav = document.getElementById('nav');
 
   const sizesEl = document.getElementById('sizes');
   function getSelectedSize() {
-    const btn = document.querySelector('#sizes .size-btn.is-selected');
-    return btn ? (btn.dataset.size || btn.textContent.trim()) : null;
+    return selectedSizeByColor[currentColor] || null;
   }
   function promptSizeSelection() {
-    sizesEl.classList.remove('is-invalid');
-    void sizesEl.offsetWidth; // restart the animation if it's already mid-shake
-    sizesEl.classList.add('is-invalid');
+    if (sizesEl) {
+      sizesEl.classList.remove('is-invalid');
+      void sizesEl.offsetWidth; // restart the animation if it's already mid-shake
+      sizesEl.classList.add('is-invalid');
+      sizesEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const errEl = document.getElementById('sizeErrorMsg');
+    if (errEl) errEl.style.display = 'inline-flex';
   }
 
   addBtn.addEventListener('click', () => {
@@ -1730,6 +1771,7 @@ const nav = document.getElementById('nav');
 
   function showReview() {
     clearCartAfterOrder();
+    resetCheckoutState();
     reviewRef.textContent = order.ref;
     const isCod = order.method === 'cod';
     const methodBadge = '<span class="review-method ' + (isCod ? 'is-cod' : 'is-online') + '">' +
