@@ -1151,7 +1151,7 @@ const nav = document.getElementById('nav');
   // Online payment is back on for the Vertex Hoodie. Catalog items still go
   // through Cash on Delivery only — see the gating logic below — since
   // create-checkout only prices a single hoodie amount today.
-  const ONLINE_PAYMENT_ENABLED = true;
+  const ONLINE_PAYMENT_ENABLED = false;
   function updatePaymentOptionsForCart() {
     const hasCatalogItem = cart.some(i => i.productId);
     const disableOnline = !ONLINE_PAYMENT_ENABLED || hasCatalogItem;
