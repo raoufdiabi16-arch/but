@@ -616,6 +616,9 @@ const nav = document.getElementById('nav');
     shipNoteEl('summaryShip', summaryPrice).textContent = note;
     shipNoteEl('summaryShip2', summaryPrice2).textContent = note;
     renderFeeCard(t);
+    const bt = document.getElementById('detailsBtnTotal'); if (bt) bt.textContent = txt;
+    const bp = document.getElementById('detailsBtnPlus'); if (bp) bp.hidden = t.fee != null;
+    updateSectionChecks();
   }
   document.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('#feeSwitch'); if (!b) return;
@@ -1139,6 +1142,7 @@ const nav = document.getElementById('nav');
     summaryPrice2.textContent = priceText;
     summaryTitle2.textContent = label;
     refreshSummaryTotals();
+    updateCheckoutExtras();
   }
 
   const sheetOptionCod = document.getElementById('sheetOptionCod');
@@ -1348,52 +1352,87 @@ const nav = document.getElementById('nav');
     mapsToggleBtn.classList.remove('is-on');
     mapsToggleBtn.setAttribute('aria-checked', 'false');
     mapsFieldWrapper.classList.remove('is-shown');
-    goToSubstepA();
+    setDetailsHeader();
   }
 
-  // Shipping Details now runs as two short sub-steps instead of one long form —
-  // 1) name & phone, 2) delivery/wilaya/address — with a small "Step 1 of 2" progress bar.
-  const detailsSubstepA = document.getElementById('detailsSubstepA');
-  const detailsSubstepB = document.getElementById('detailsSubstepB');
-  const detailsProgressLabel = document.getElementById('detailsProgressLabel');
-  const detailsProgressFill = document.getElementById('detailsProgressFill');
+  // Shipping Details is ONE calm page now (contact → delivery → confirm). No sub-steps.
+  const DETAILS_TITLE = 'Complete your order';
+  let flowHasMethodStep = false;   // true only when the payment-method step is part of this checkout
+  function setDetailsHeader() {
+    if (flowHasMethodStep) setCheckoutHeaderBack(goToPaymentMethodStep);
+    else setCheckoutHeaderClose();
+  }
   function backFromSecurePayment() {
     paymentErrorBanner.classList.remove('is-open');
     stepPayment.classList.remove('is-active');
     stepPaymentMethod.classList.remove('is-active');
     stepDetails.classList.add('is-active');
-    checkoutSheetTitle.textContent = 'Shipping Details';
-    setCheckoutHeaderBack(goToSubstepA);          /* we are on sub-step 2 of the details */
+    checkoutSheetTitle.textContent = DETAILS_TITLE;
+    setDetailsHeader();
   }
-  function goToSubstepA() {
-    detailsSubstepB.classList.remove('is-active');
-    detailsSubstepA.classList.add('is-active');
-    detailsProgressLabel.textContent = 'Step 1 of 2';
-    detailsProgressFill.style.width = '50%';
-    setCheckoutHeaderBack(goToPaymentMethodStep);
+
+  // Small, honest helpers for the new layout: product photo, button total, "section done" ticks.
+  function updateCheckoutThumb() {
+    const img = document.getElementById('coThumb'), badge = document.getElementById('coThumbQty');
+    if (!img) return;
+    const it = cart[0];
+    if (!it) { img.style.visibility = 'hidden'; return; }
+    const heroThumb = (viewerImgs[0] && viewerImgs[0].src) || '';
+    const src = it.productId ? (it.image || heroThumb) : (it.color === 'black' ? COLORS.black.imgs[0] : (COLORS.white.imgs[0] || heroThumb));
+    if (src && img.getAttribute('src') !== src) img.src = src;
+    img.style.visibility = src ? '' : 'hidden';
+    const qty = cart.reduce((s, i) => s + i.qty, 0);
+    if (badge) { badge.textContent = '×' + qty; badge.classList.toggle('is-shown', qty > 1); }
   }
-  function goToSubstepB() {
-    [inputName, inputPhone].forEach(el => el.classList.toggle('is-invalid', !el.checkValidity()));
-    const firstInvalid = [inputName, inputPhone].find(el => !el.checkValidity());
-    if (firstInvalid) {
-      const isPhone = firstInvalid === inputPhone;
-      orderErrorBanner.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span>' +
-        (isPhone ? 'Enter a valid Algerian phone number, e.g. 0551 23 45 67.' : 'Please fill in the highlighted field above.') +
-        '</span>';
-      orderErrorBanner.classList.add('is-open');
-      firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstInvalid.focus({ preventScroll: true });
-      return;
+  function updateSectionChecks() {
+    const secC = document.getElementById('coSecContact'), secD = document.getElementById('coSecDelivery');
+    if (!secC || !secD) return;
+    const n = document.getElementById('inputName'), p = document.getElementById('inputPhone'), a = document.getElementById('inputAddress');
+    const cDone = !!(n && p && n.value.trim() && n.checkValidity() && p.value.trim() && p.checkValidity());
+    const dDone = !!(selectedWilaya && currentShippingFee() != null && a && a.value.trim());
+    secC.classList.toggle('is-done', cDone);
+    secD.classList.toggle('is-done', dDone);
+    // progress note (until both are done) and the confirm button (once they are)
+    const d1 = document.getElementById('coDot1'), d2 = document.getElementById('coDot2');
+    if (d1) d1.classList.toggle('on', cDone);
+    if (d2) d2.classList.toggle('on', dDone);
+    const pend = document.getElementById('coPendingTxt'), key = (cDone ? 1 : 0) + (dDone ? 1 : 0) === 1 ? 'one' : 'none';
+    if (pend && pend.dataset.k !== key) {
+      pend.dataset.k = key;
+      pend.textContent = key === 'one' ? 'Almost there — one more step' : 'Complete the 2 steps above to confirm';
     }
-    orderErrorBanner.classList.remove('is-open');
-    detailsSubstepA.classList.remove('is-active');
-    detailsSubstepB.classList.add('is-active');
-    detailsProgressLabel.textContent = 'Step 2 of 2';
-    detailsProgressFill.style.width = '100%';
-    setCheckoutHeaderBack(goToSubstepA);
+    const ft = document.querySelector('#stepDetails .co-footer');
+    if (ft) {
+      const ready = cDone && dDone;
+      if (ready && !ft.classList.contains('is-ready')) sizeCtaRing();   // measure before it appears
+      ft.classList.toggle('is-ready', ready);
+    }
   }
-  document.getElementById('detailsNextBtn').addEventListener('click', goToSubstepB);
+  // The green frame is drawn with an SVG sized to the button, so its corners stay perfectly round at any width.
+  function sizeCtaRing() {
+    const box = document.querySelector('#stepDetails .co-cta-box');
+    if (!box) return;
+    const svg = box.querySelector('.co-cta-ring'), w = box.offsetWidth, h = box.offsetHeight;
+    if (!svg || !w || !h) return;
+    const sw = 2.5, r = Math.max(1, Math.min(20, h / 2) - sw / 2);
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.querySelectorAll('rect').forEach(function (rc) {
+      rc.setAttribute('x', sw / 2); rc.setAttribute('y', sw / 2);
+      rc.setAttribute('width', w - sw); rc.setAttribute('height', h - sw);
+      rc.setAttribute('rx', r); rc.setAttribute('ry', r);
+    });
+  }
+  window.addEventListener('resize', sizeCtaRing);
+  function updateCheckoutExtras() {
+    const tp = document.getElementById('coTrustPay');
+    if (tp) tp.textContent = selectedPaymentMethod === 'cod' ? 'Pay when your order arrives' : 'Secure card payment on Chargily';
+    const ch = document.getElementById('coCtaHint');
+    if (ch && ch.dataset.k !== selectedPaymentMethod) {
+      ch.dataset.k = selectedPaymentMethod;
+      ch.textContent = selectedPaymentMethod === 'cod' ? 'Tap to place your order — nothing to pay now.' : 'Tap to continue to secure payment.';
+    }
+    updateCheckoutThumb();
+  }
 
   // "Your Location" is off by default — an optional toggle instead of an always-visible field.
   const mapsToggleBtn = document.getElementById('mapsToggleBtn');
@@ -1420,10 +1459,12 @@ const nav = document.getElementById('nav');
   }
 
   const stepPaymentMethod = document.getElementById('stepPaymentMethod');
+  function onlineOfferedForCart() { return ONLINE_PAYMENT_ENABLED && !cart.some(i => i.productId); }
   function openCheckout(startAtPaymentStep) {
     updatePaymentOptionsForCart();
     selectPaymentOption(selectedPaymentMethod);
-    if (startAtPaymentStep) {
+    flowHasMethodStep = !!startAtPaymentStep && onlineOfferedForCart();   // cash only → straight to the form
+    if (flowHasMethodStep) {
       stepPaymentMethod.classList.add('is-active');
       stepDetails.classList.remove('is-active');
       checkoutSheetTitle.textContent = 'Payment Method';
@@ -1431,8 +1472,8 @@ const nav = document.getElementById('nav');
     } else {
       stepPaymentMethod.classList.remove('is-active');
       stepDetails.classList.add('is-active');
-      checkoutSheetTitle.textContent = 'Shipping Details';
-      setCheckoutHeaderBack(goToSubstepA);
+      checkoutSheetTitle.textContent = DETAILS_TITLE;
+      setDetailsHeader();
     }
     stepPayment.classList.remove('is-active');
     paymentErrorBanner.classList.remove('is-open');
@@ -1454,8 +1495,8 @@ const nav = document.getElementById('nav');
     stepPayment.classList.remove('is-active');
     stepPaymentMethod.classList.remove('is-active');
     stepDetails.classList.add('is-active');
-    checkoutSheetTitle.textContent = 'Shipping Details';
-    setCheckoutHeaderBack(goToPaymentMethodStep);
+    checkoutSheetTitle.textContent = DETAILS_TITLE;
+    setDetailsHeader();
   });
 
   function restoreBuyNow() {
@@ -1546,6 +1587,7 @@ const nav = document.getElementById('nav');
   [inputName, inputPhone, inputAddress].forEach(el => {
     el.addEventListener('input', () => {
       if (el.checkValidity()) el.classList.remove('is-invalid');
+      updateSectionChecks();
     });
   });
 

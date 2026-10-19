@@ -3667,6 +3667,258 @@
   }
   .loader-chip .hero-mark-layer{position:absolute; inset:0; width:100%; height:100%;}
 </style>
+<style id="coRedesign">
+/* ===================== CHECKOUT — one calm page: contact → delivery → confirm ===================== */
+#checkoutBottomSheet .bottom-sheet-backdrop{
+  background:rgba(14,14,16,.40);
+  -webkit-backdrop-filter:blur(10px) saturate(125%); backdrop-filter:blur(10px) saturate(125%);
+}
+#checkoutBottomSheet .bottom-sheet-content{
+  max-width:520px;
+  max-height:94vh; max-height:94dvh;
+  background:linear-gradient(165deg, rgba(255,255,255,.80) 0%, rgba(246,245,242,.58) 100%);
+  border:1px solid rgba(255,255,255,.78); border-bottom:0;
+  border-radius:30px 30px 0 0;
+  box-shadow:0 -30px 90px rgba(10,10,12,.22), inset 0 1px 0 rgba(255,255,255,.95);
+  -webkit-backdrop-filter:blur(44px) saturate(190%); backdrop-filter:blur(44px) saturate(190%);
+}
+#checkoutBottomSheet .bottom-sheet-header{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  min-height:52px; padding:0 56px; border-bottom:0;
+}
+#checkoutBottomSheet .bottom-sheet-title{ font-size:18px; font-weight:700; letter-spacing:-.025em; text-align:center; }
+#checkoutBottomSheet .bottom-sheet-close{
+  position:absolute; left:16px; top:50%; margin-top:-17px;
+  width:34px; height:34px; background:rgba(18,18,20,.06);
+}
+#checkoutBottomSheet .bottom-sheet-body{ --co-pad:20px; padding:2px var(--co-pad) 0; }
+#checkoutBottomSheet .checkout-step{ gap:14px; }
+
+/* what you are ordering */
+#checkoutBottomSheet .co-sum{
+  display:flex; align-items:center; gap:14px; padding:12px 16px 12px 12px; border-radius:22px;
+  background:rgba(255,255,255,.62); border:1px solid rgba(255,255,255,.95);
+  box-shadow:0 1px 2px rgba(18,18,20,.04), 0 14px 34px -18px rgba(18,18,20,.22);
+}
+#checkoutBottomSheet .co-thumb-wrap{ position:relative; width:58px; height:58px; flex:none; }
+#checkoutBottomSheet .co-thumb{ display:block; width:100%; height:100%; object-fit:cover; border-radius:16px; background:#ecebe8; }
+#checkoutBottomSheet .co-thumb-qty{
+  position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 6px; border-radius:99px;
+  background:var(--ink); color:#fff; font-size:11px; font-weight:700; display:none; align-items:center; justify-content:center;
+  box-shadow:0 0 0 2px #fff;
+}
+#checkoutBottomSheet .co-thumb-qty.is-shown{ display:flex; }
+#checkoutBottomSheet .co-sum-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; text-align:left; }
+#checkoutBottomSheet .co-sum-main .order-summary-title{ font-size:14px; font-weight:600; line-height:1.3; }
+#checkoutBottomSheet .co-sum-main .order-summary-subtitle{ font-size:12px; color:var(--graphite); }
+#checkoutBottomSheet .co-sum-right{ flex:none; max-width:42%; text-align:right; }
+#checkoutBottomSheet .co-sum-right .order-summary-price{ font-size:18px; }
+#checkoutBottomSheet .co-sum-right .order-summary-ship{ font-size:11px; line-height:1.3; opacity:.65; margin-top:3px; }
+
+/* the form is a calm column of three blocks */
+#checkoutBottomSheet #detailsForm{ display:flex; flex-direction:column; gap:14px; }
+#checkoutBottomSheet #detailsForm .order-error-banner{ margin:0; }
+
+#checkoutBottomSheet .co-card{
+  display:flex; flex-direction:column; gap:14px; padding:18px 16px 16px; border-radius:24px;
+  background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 1px 2px rgba(18,18,20,.03), 0 18px 40px -26px rgba(18,18,20,.28);
+}
+#checkoutBottomSheet .co-card-head{ display:flex; align-items:center; gap:12px; text-align:left; }
+#checkoutBottomSheet .co-num{
+  position:relative; flex:none; display:grid; place-items:center; width:30px; height:30px; border-radius:50%;
+  background:var(--ink); color:#fff; font-size:12.5px; font-weight:700;
+  transition:background .5s var(--ease);
+}
+#checkoutBottomSheet .co-num b{ transition:opacity .25s ease, transform .4s var(--ease); }
+/* the glossy mint badge waits invisible inside the number, then blooms out of it */
+#checkoutBottomSheet .co-badge{
+  position:absolute; left:50%; top:50%; width:38px; height:auto; margin:-18px 0 0 -19px;
+  opacity:0; transform:scale(.5) rotate(-12deg); pointer-events:none; user-select:none; -webkit-user-drag:none;
+  transition:opacity .3s ease, transform .35s var(--ease);
+  filter:drop-shadow(0 5px 9px rgba(70,170,110,.30));
+}
+#checkoutBottomSheet .co-num::after{
+  content:""; position:absolute; inset:0; border-radius:50%; pointer-events:none; opacity:0;
+  box-shadow:0 0 0 0 rgba(120,215,160,.55);
+}
+#checkoutBottomSheet .co-card{ transition:border-color .7s ease, box-shadow .7s ease; }
+#checkoutBottomSheet .co-card.is-done{
+  border-color:rgba(150,225,180,.85);
+  box-shadow:0 1px 2px rgba(18,18,20,.03), 0 18px 40px -26px rgba(18,18,20,.28), 0 0 0 4px rgba(150,225,180,.14);
+}
+#checkoutBottomSheet .co-card.is-done .co-num{ background:transparent; }
+#checkoutBottomSheet .co-card.is-done .co-num b{ opacity:0; transform:scale(.4); }
+#checkoutBottomSheet .co-card.is-done .co-badge{ opacity:1; transform:none; animation:coBadgeIn .95s cubic-bezier(.2,1.25,.3,1) both; }
+#checkoutBottomSheet .co-card.is-done .co-num::after{ animation:coRipple 1.3s ease-out .15s 1 both; }
+@keyframes coBadgeIn{
+  0%{ opacity:0; transform:scale(.2) rotate(-18deg); }
+  55%{ opacity:1; transform:scale(1.13) rotate(3deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0); }
+}
+@keyframes coRipple{
+  0%{ opacity:.9; box-shadow:0 0 0 0 rgba(120,215,160,.55); }
+  100%{ opacity:0; box-shadow:0 0 0 17px rgba(120,215,160,0); }
+}
+#checkoutBottomSheet .co-card-title{ margin:0; font-size:15px; font-weight:700; letter-spacing:-.015em; color:var(--ink); }
+#checkoutBottomSheet .co-card-sub{ margin:2px 0 0; font-size:12px; line-height:1.4; color:var(--graphite); }
+
+/* fields: comfortable, and 16px so phones never zoom in on focus */
+#checkoutBottomSheet .co-card .form-group{ margin:0 !important; gap:7px; }
+#checkoutBottomSheet .form-label{ font-size:12.5px; font-weight:600; color:var(--graphite); }
+#checkoutBottomSheet .form-input{ padding:14px 16px 14px 44px; font-size:16px; border-radius:16px; }
+#checkoutBottomSheet .form-input.no-icon{ padding-left:16px; }
+#checkoutBottomSheet .wilaya-trigger{ padding:14px 16px 14px 44px; font-size:16px; border-radius:16px; }
+#checkoutBottomSheet .delivery-tabs{ margin-top:0; }
+
+/* receipt */
+#checkoutBottomSheet .fee-card{
+  margin:0; padding:4px 16px 14px; border-radius:24px;
+  background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 1px 2px rgba(18,18,20,.03), 0 18px 40px -26px rgba(18,18,20,.28);
+}
+
+/* quiet reassurance — only things the store policy really promises */
+#checkoutBottomSheet .co-trust{ list-style:none; margin:2px 0 0; padding:0 4px; display:flex; flex-direction:column; gap:9px; }
+#checkoutBottomSheet .co-trust li{ display:flex; align-items:center; gap:10px; font-size:12.5px; line-height:1.4; color:var(--graphite); text-align:left; }
+#checkoutBottomSheet .co-trust svg{ flex:none; width:16px; height:16px; stroke:#2f7d4f; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* one clear action, always in reach, with the total on it */
+#checkoutBottomSheet .co-footer{
+  position:sticky; bottom:0; z-index:5;
+  margin:4px calc(var(--co-pad) * -1) 0; padding:18px var(--co-pad) calc(16px + env(safe-area-inset-bottom, 0px));
+  background:linear-gradient(to top, rgba(248,247,244,.97) 58%, rgba(248,247,244,0));
+}
+#checkoutBottomSheet .co-footer .checkout-btn{
+  margin:0; padding:16px 18px 16px 22px; justify-content:space-between; gap:12px;
+  border-radius:20px; font-size:15.5px;
+  background:linear-gradient(180deg,#1c1c1f,#0c0c0e);
+  box-shadow:0 14px 30px -12px rgba(10,10,12,.55), inset 0 1px 0 rgba(255,255,255,.14);
+}
+#checkoutBottomSheet .co-footer .checkout-btn:disabled{ opacity:.85; cursor:wait; transform:none; }
+#checkoutBottomSheet .co-btn-label{ display:inline-flex; align-items:center; gap:8px; }
+#checkoutBottomSheet .co-btn-total{
+  display:inline-flex; align-items:baseline; gap:6px; padding:7px 13px; border-radius:99px;
+  background:rgba(255,255,255,.14); font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+#checkoutBottomSheet .co-btn-total small{ font-family:var(--font-ui); font-size:11px; font-weight:500; opacity:.7; letter-spacing:0; }
+#checkoutBottomSheet .co-btn-total small[hidden]{ display:none; }
+
+/* phones: a tall sheet */
+@media (max-width:720px){
+  #checkoutBottomSheet .bottom-sheet-content{ max-height:94vh; max-height:94dvh; }
+  #checkoutBottomSheet .bottom-sheet-body{ --co-pad:16px; }
+  #checkoutBottomSheet .co-card{ padding:16px 14px 14px; }
+}
+
+/* laptops & desktops: a centred glass card instead of a half-page strip */
+@media (min-width:721px){
+  #checkoutBottomSheet{ justify-content:center; align-items:center; padding:24px; }
+  #checkoutBottomSheet .bottom-sheet-content{
+    border:1px solid rgba(255,255,255,.78); border-radius:30px; padding-top:8px;
+    max-height:min(90vh, 820px);
+    box-shadow:0 40px 100px rgba(10,10,12,.30), inset 0 1px 0 rgba(255,255,255,.95);
+    transform:translateY(18px) scale(.965); opacity:0;
+    transition:transform .5s cubic-bezier(.16,1,.3,1), opacity .35s ease;
+  }
+  #checkoutBottomSheet.is-open .bottom-sheet-content{ transform:none; opacity:1; }
+  #checkoutBottomSheet .bottom-sheet-drag-handle{ display:none; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  #checkoutBottomSheet .co-card.is-done .co-num svg{ animation:none; }
+  #checkoutBottomSheet .bottom-sheet-content{ transition:none; }
+}
+
+/* ================= CONFIRM — a white button with a green frame that draws itself ================= */
+/* before both steps are done: a quiet progress note in the same spot */
+#checkoutBottomSheet .co-pending{
+  display:flex; align-items:center; justify-content:center; gap:11px; min-height:58px; padding:0 18px; overflow:hidden;
+  border-radius:20px; border:1.5px dashed rgba(18,18,20,.16); background:rgba(255,255,255,.45);
+  color:var(--graphite); font-size:13px; font-weight:500; line-height:1.35; text-align:center;
+  max-height:80px;
+  transition:opacity .45s ease, max-height .6s cubic-bezier(.16,1,.3,1), min-height .6s cubic-bezier(.16,1,.3,1), padding .6s, border-width .6s;
+}
+#checkoutBottomSheet .co-pending-dots{ display:inline-flex; gap:6px; flex:none; }
+#checkoutBottomSheet .co-pending-dots i{ width:9px; height:9px; border-radius:50%; background:rgba(18,18,20,.15); transition:background .45s ease, transform .45s var(--ease); }
+#checkoutBottomSheet .co-pending-dots i.on{ background:#3dbb73; transform:scale(1.2); }
+#checkoutBottomSheet .co-footer.is-ready .co-pending{ max-height:0; min-height:0; padding:0; border-width:0; opacity:0; }
+
+/* after: the button */
+#checkoutBottomSheet .co-cta{
+  max-height:0; opacity:0; overflow:hidden; visibility:hidden;
+  transition:max-height .7s cubic-bezier(.16,1,.3,1), opacity .5s ease, visibility 0s linear .7s;
+}
+#checkoutBottomSheet .co-footer.is-ready .co-cta{ max-height:160px; opacity:1; overflow:visible; visibility:visible; transition-delay:0s; }
+#checkoutBottomSheet .co-cta-box{ position:relative; }
+#checkoutBottomSheet .co-footer.is-ready .co-cta-box{ animation:coCtaIn .75s cubic-bezier(.16,1,.3,1) both; }
+@keyframes coCtaIn{ 0%{ opacity:0; transform:translateY(12px) scale(.98); } 100%{ opacity:1; transform:none; } }
+
+#checkoutBottomSheet .co-cta .checkout-btn{
+  position:relative; z-index:1; width:100%; min-height:62px; margin:0; padding:0 18px 0 66px;
+  justify-content:space-between; gap:12px; border-radius:20px;
+  background:#fff; color:var(--ink); font-size:16px; font-weight:700; letter-spacing:-.01em;
+  box-shadow:0 14px 30px -16px rgba(30,120,70,.42), 0 2px 8px rgba(10,10,12,.05);
+  transition:transform .25s var(--ease), box-shadow .3s ease, background .3s ease;
+}
+#checkoutBottomSheet .co-cta .checkout-btn:hover{ background:#f6fcf8; transform:translateY(-1px); box-shadow:0 18px 34px -16px rgba(30,120,70,.5), 0 2px 8px rgba(10,10,12,.05); }
+#checkoutBottomSheet .co-cta .checkout-btn:active{ transform:scale(.985); background:#eef9f2; }
+#checkoutBottomSheet .co-cta .checkout-btn:focus-visible{ outline:3px solid rgba(61,187,115,.45); outline-offset:3px; }
+#checkoutBottomSheet .co-cta .checkout-btn:disabled{ justify-content:center; padding-left:18px; cursor:wait; transform:none; opacity:.9; }
+#checkoutBottomSheet .co-cta .co-btn-label{ display:inline-flex; align-items:center; gap:9px; }
+#checkoutBottomSheet .co-cta .co-btn-label svg{ width:18px; height:18px; stroke:#2fa061; transition:transform .3s var(--ease); }
+#checkoutBottomSheet .co-cta .checkout-btn:hover .co-btn-label svg{ transform:translateX(3px); }
+#checkoutBottomSheet .co-cta .co-btn-total{
+  padding:8px 14px; background:rgba(61,187,115,.12); color:#17673e; opacity:0;
+}
+#checkoutBottomSheet .co-footer.is-ready .co-cta .co-btn-total{ animation:coTxtIn .7s cubic-bezier(.16,1,.3,1) 1.2s both; }
+#checkoutBottomSheet .co-cta .co-btn-total small{ color:#17673e; }
+
+/* the green frame: a faint track, and a bright line that draws itself clockwise */
+#checkoutBottomSheet .co-cta-ring{ position:absolute; left:0; top:0; width:100%; height:100%; z-index:2; overflow:visible; pointer-events:none; }
+#checkoutBottomSheet .co-cta-ring rect{ fill:none; stroke-width:2.5; }
+#checkoutBottomSheet .co-cta-ring .track{ stroke:rgba(61,187,115,.20); }
+#checkoutBottomSheet .co-cta-ring .draw{ stroke:#33b068; stroke-dasharray:1 1.05; stroke-dashoffset:1.05; }
+#checkoutBottomSheet .co-footer.is-ready .co-cta-ring .draw{ animation:coDraw 1.3s cubic-bezier(.65,0,.2,1) .2s forwards; }
+#checkoutBottomSheet .co-footer.is-ready .co-cta-ring{ animation:coRingBreathe 4.8s ease-in-out 2.4s infinite; }
+@keyframes coDraw{ to{ stroke-dashoffset:0; } }
+@keyframes coRingBreathe{
+  0%,100%{ filter:drop-shadow(0 0 0 rgba(61,187,115,0)); }
+  50%{ filter:drop-shadow(0 0 6px rgba(61,187,115,.40)); }
+}
+
+/* the badge sits INSIDE the button, blooming just as the frame closes */
+#checkoutBottomSheet .co-cta-badge{
+  position:absolute; z-index:3; left:14px; top:50%; width:40px; height:auto; margin-top:-19px;
+  opacity:0; transform:scale(.3) rotate(-16deg); pointer-events:none; user-select:none; -webkit-user-drag:none;
+  filter:drop-shadow(0 6px 10px rgba(70,170,110,.32));
+}
+#checkoutBottomSheet .co-footer.is-ready .co-cta-badge{ animation:coReadyPop 1.15s cubic-bezier(.18,1.2,.3,1) .9s both; }
+#checkoutBottomSheet .co-cta-box:has(.checkout-btn:disabled) .co-cta-badge{ opacity:0; animation:none; }
+@keyframes coReadyPop{
+  0%{ opacity:0; transform:scale(.3) rotate(-16deg); }
+  60%{ opacity:1; transform:scale(1.12) rotate(2.5deg); }
+  100%{ opacity:1; transform:scale(1) rotate(0); }
+}
+@keyframes coTxtIn{ 0%{ opacity:0; transform:translateY(8px); } 100%{ opacity:1; transform:none; } }
+
+/* one line that says what pressing does — so nobody hesitates */
+#checkoutBottomSheet .co-cta-hint{ margin:11px 0 0; text-align:center; font-size:12.5px; line-height:1.4; color:var(--graphite); }
+#checkoutBottomSheet .co-footer.is-ready .co-cta-hint{ animation:coTxtIn .7s cubic-bezier(.16,1,.3,1) 1.5s both; }
+
+@media (prefers-reduced-motion:reduce){
+  #checkoutBottomSheet .co-card.is-done .co-badge{ opacity:1; transform:none; animation:none; }
+  #checkoutBottomSheet .co-card.is-done .co-num::after{ animation:none; }
+  #checkoutBottomSheet .co-card, #checkoutBottomSheet .co-pending, #checkoutBottomSheet .co-cta{ transition:none; }
+  #checkoutBottomSheet .co-footer.is-ready .co-cta-box,
+  #checkoutBottomSheet .co-footer.is-ready .co-cta-ring,
+  #checkoutBottomSheet .co-footer.is-ready .co-cta-hint,
+  #checkoutBottomSheet .co-footer.is-ready .co-cta .co-btn-total{ animation:none; opacity:1; }
+  #checkoutBottomSheet .co-footer.is-ready .co-cta-ring .draw{ animation:none; stroke-dashoffset:0; }
+  #checkoutBottomSheet .co-footer.is-ready .co-cta-badge{ animation:none; opacity:1; transform:none; }
+}
+</style>
 </head>
 <body>
 
@@ -4086,7 +4338,7 @@
         <button type="button" class="bottom-sheet-close" id="closeCheckoutBtn" aria-label="Close checkout">
           <svg id="closeCheckoutIcon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <h3 class="bottom-sheet-title" id="checkoutSheetTitle">Shipping Details</h3>
+        <h3 class="bottom-sheet-title" id="checkoutSheetTitle">Complete your order</h3>
       </div>
       <div class="bottom-sheet-body">
 
@@ -4126,27 +4378,36 @@
           </button>
         </div>
 
-        <!-- STEP 1: Customer Details Form -->
+        <!-- STEP 1: one calm page — contact, delivery, confirm -->
         <div class="checkout-step is-active" id="stepDetails">
-          <!-- Summary box -->
-          <div class="order-summary-box">
-            <div class="order-summary-price" id="summaryPrice">8 900 DA</div>
-            <div class="order-summary-details">
+
+          <!-- What you are ordering: photo, name, price — always visible at the top -->
+          <div class="co-sum">
+            <div class="co-thumb-wrap">
+              <img class="co-thumb" id="coThumb" alt="" decoding="async">
+              <span class="co-thumb-qty" id="coThumbQty"></span>
+            </div>
+            <div class="co-sum-main">
               <span class="order-summary-title" id="summaryTitle">Vertex Hoodie (Noir)</span>
               <span class="order-summary-subtitle" id="summaryMethod">Cash on Delivery</span>
+            </div>
+            <div class="co-sum-right">
+              <div class="order-summary-price" id="summaryPrice">8 900 DA</div>
             </div>
           </div>
 
           <form id="detailsForm" novalidate>
             <div class="order-error-banner" id="orderErrorBanner"></div>
 
-            <div class="details-progress">
-              <span id="detailsProgressLabel">Step 1 of 2</span>
-              <div class="details-progress-track"><div class="details-progress-fill" id="detailsProgressFill"></div></div>
-            </div>
-
-            <!-- SUB-STEP 1: just the two fields needed to reach someone by phone -->
-            <div class="details-substep is-active" id="detailsSubstepA">
+            <!-- 1 · Contact -->
+            <section class="co-card" id="coSecContact">
+              <header class="co-card-head">
+                <span class="co-num"><b>1</b><img class="co-badge" src="assets/co-check.webp" alt="" aria-hidden="true" width="38" height="36" decoding="async" draggable="false"></span>
+                <div>
+                  <h4 class="co-card-title">Contact</h4>
+                  <p class="co-card-sub">We call this number to confirm before shipping.</p>
+                </div>
+              </header>
               <div class="form-group" style="margin-bottom: 14px;">
                 <label class="form-label" for="inputName">Full Name</label>
                 <div class="form-input-shell">
@@ -4162,7 +4423,6 @@
                   <input type="tel" class="form-input ltr" id="inputPhone" required placeholder="05/06/07 00 00 00 00" pattern="[0][567][0-9]{8}" autocomplete="tel">
                 </div>
               </div>
-
               <!-- Secondary Phone Toggle & Field -->
               <div class="form-group" style="margin-bottom: 6px; text-align: left;">
                 <button type="button" class="phone-toggle-btn" id="toggleSecondPhoneBtn">
@@ -4179,17 +4439,18 @@
                   </div>
                 </div>
               </div>
+            </section>
 
-              <button type="button" class="checkout-btn" id="detailsNextBtn">
-                Next <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-              </button>
-            </div>
-
-            <!-- SUB-STEP 2: where it's going -->
-            <div class="details-substep" id="detailsSubstepB">
-
-              <div class="form-group" style="margin-bottom: 14px; text-align: left;">
-                <label class="form-label">Delivery Options</label>
+            <!-- 2 · Delivery -->
+            <section class="co-card" id="coSecDelivery">
+              <header class="co-card-head">
+                <span class="co-num"><b>2</b><img class="co-badge" src="assets/co-check.webp" alt="" aria-hidden="true" width="38" height="36" decoding="async" draggable="false"></span>
+                <div>
+                  <h4 class="co-card-title">Delivery</h4>
+                  <p class="co-card-sub">Ships within 2–4 business days of confirmation.</p>
+                </div>
+              </header>
+              <div class="form-group">
                 <div class="delivery-tabs" id="deliveryTabs">
                   <div class="delivery-thumb" id="deliveryThumb"></div>
                   <button type="button" class="delivery-tab is-active" id="deliveryHome">
@@ -4202,7 +4463,6 @@
                   </button>
                 </div>
               </div>
-
               <div class="form-group" style="margin-bottom: 14px;">
                 <label class="form-label" for="inputWilayaBtn">Wilaya</label>
                 <button type="button" class="wilaya-trigger" id="inputWilayaBtn" aria-haspopup="dialog">
@@ -4211,7 +4471,6 @@
                   <svg class="chev-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
               </div>
-
               <div class="form-group" style="margin-bottom: 14px;">
                 <label class="form-label" id="addressLabel" for="inputAddress">Home Address</label>
                 <div class="form-input-shell">
@@ -4219,9 +4478,6 @@
                   <input type="text" class="form-input" id="inputAddress" required placeholder="Street, neighbourhood, municipality" autocomplete="street-address">
                 </div>
               </div>
-
-              <!-- Location link: off by default — most people won't have one handy, so it no
-                   longer takes up space unless someone actually wants to add it. -->
               <div class="form-group" style="margin-bottom: 16px;">
                 <div class="maps-toggle-row">
                   <label class="form-label" style="margin:0;">Share your location (optional)</label>
@@ -4242,8 +4498,10 @@
                   <p class="maps-hint">Makes it a little easier for delivery to find you.</p>
                 </div>
               </div>
+            </section>
 
-              <div class="fee-card" id="feeCard" data-state="empty" aria-live="polite">
+            <!-- Receipt: nothing hidden, the total is final -->
+            <div class="fee-card" id="feeCard" data-state="empty" aria-live="polite">
                 <div class="fee-row"><span class="fee-k"><i class="fee-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></i><span id="feeSubLabel">Vertex Hoodie</span></span><b id="feeSub">8 900 DA</b></div>
                 <div class="fee-row fee-disc" id="feeDiscRow" hidden><span class="fee-k"><i class="fee-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/></svg></i><span>Online payment · 5% off</span></span><b id="feeDisc">− 445 DA</b></div>
                 <div class="fee-row"><span class="fee-k"><i class="fee-ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7"/><circle cx="7" cy="17.500" r="1.600"/><circle cx="17" cy="17.500" r="1.600"/></svg></i><span id="feeDelLabel">Delivery</span></span><b id="feeDel" class="fee-del">—</b></div>
@@ -4251,10 +4509,30 @@
                 <p class="fee-note"><span id="feeNote">Choose your wilaya to see the delivery fee.</span> <button type="button" class="fee-switch" id="feeSwitch" hidden>Switch</button></p>
               </div>
 
-              <button type="submit" class="checkout-btn" id="detailsSubmitBtn">
-              <span id="detailsSubmitBtnText">Confirm Order</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
+            <ul class="co-trust">
+              <li><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg><span id="coTrustPay">Pay when your order arrives</span></li>
+              <li><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>We call to confirm before shipping</span></li>
+              <li><svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span>Free size exchange within 7 days</span></li>
+            </ul>
+
+            <div class="co-footer">
+              <!-- until both steps are done: a calm progress note, no button to confuse anyone -->
+              <div class="co-pending" id="coPending" aria-live="polite">
+                <span class="co-pending-dots"><i id="coDot1"></i><i id="coDot2"></i></span>
+                <span id="coPendingTxt">Complete the 2 steps above to confirm</span>
+              </div>
+              <!-- once both are done: the white button appears, its green frame draws itself, the badge blooms inside -->
+              <div class="co-cta" id="coCta">
+                <div class="co-cta-box">
+                  <svg class="co-cta-ring" aria-hidden="true" focusable="false"><rect class="track" pathLength="1"></rect><rect class="draw" pathLength="1"></rect></svg>
+                  <img class="co-cta-badge" src="assets/co-check.webp" alt="" aria-hidden="true" width="40" height="38" decoding="async" draggable="false">
+                  <button type="submit" class="checkout-btn" id="detailsSubmitBtn">
+                    <span class="co-btn-label"><span id="detailsSubmitBtnText">Confirm Order</span><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                    <span class="co-btn-total"><span id="detailsBtnTotal">8 900 DA</span><small id="detailsBtnPlus">+ delivery</small></span>
+                  </button>
+                </div>
+                <p class="co-cta-hint" id="coCtaHint">Tap to place your order — nothing to pay now.</p>
+              </div>
             </div>
           </form>
         </div>
@@ -4772,7 +5050,7 @@ try { ppBoot(); } catch(e) {}
 <script>
 /* Language switcher: English / Français (whole site). Isolated: starts after the page has loaded. */
 (function(){
-var FR = {"Coming soon":"Bientôt disponible","Hoodie":"Sweat à capuche","Tricot":"Tricot","Pants":"Pantalon","Sweatshirt":"Sweat","Categories":"Catégories","Color":"Couleur","Choose size":"Choisir la taille","Added to cart":"Ajouté au panier","Reset":"Réinitialiser","Scroll down":"Faire défiler vers le bas","Main navigation":"Navigation principale","What's the one thing you always want to carry — but it always gets in the way?":"Quelle est la chose que vous voulez toujours emporter — mais qui vous encombre toujours ?","My phone":"Mon téléphone","My laptop":"Mon ordinateur portable","My headphones":"Mon casque","My water bottle":"Ma gourde","My book":"Mon livre","Skip":"Passer","Home":"Accueil","Catalog":"Catalogue","Contact":"Contact","Size guide":"Guide des tailles","Shipping":"Expédition","Returns":"Retours","Privacy":"Confidentialité","Terms":"Conditions","Cancel":"Annuler","Scroll":"Défiler","AIRVER — First Drop":"AIRVER — Premier drop","View details":"Voir les détails","More styles":"Plus de modèles","coming soon":"bientôt disponibles","Secure checkout — pay online or cash on delivery":"Paiement sécurisé — en ligne ou à la livraison","Cash on Delivery":"Paiement à la livraison","— Algiers, Algeria":"— Alger, Algérie","Questions about an order? Message us on WhatsApp — we usually reply within a day.":"Une question sur une commande ? Écrivez-nous sur WhatsApp — nous répondons généralement sous un jour.","© 2026 AIRVER. All rights reserved.":"© 2026 AIRVER. Tous droits réservés.","We use a small number of cookies to keep your cart and checkout working. No tracking or ad cookies. See our":"Nous utilisons quelques cookies pour faire fonctionner votre panier et votre commande. Aucun cookie de suivi ni publicitaire. Consultez notre","Privacy Policy":"Politique de confidentialité","Got it":"Compris","Back":"Retour","Outerwear":"Vêtements d'extérieur","in Noir":"en Noir","Relaxed, true-to-size fit":"Coupe ample, taille fidèle","Heavyweight brushed cotton-fleece":"Molleton de coton gratté, épais","Angular contrast stitching across front and back":"Surpiqûres contrastées angulaires sur le devant et le dos","Adjustable drawstring hood, fully lined":"Capuche à cordon ajustable, entièrement doublée","Full-length zip with matte hardware":"Zip intégral avec quincaillerie mate","Ribbed cuffs and hem for a secure fit":"Poignets et bas côtelés pour un maintien parfait","Front pockets with clean stitched edges":"Poches avant aux bords soigneusement surpiqués","Brushed fleece":"Molleton gratté","Water-resistant":"Résistant à l'eau","Limited batch":"Série limitée","New":"Nouveau","5% off when you pay online at checkout":"5 % de réduction si vous payez en ligne","We call to confirm every order before it ships — no surprise charges.":"Nous appelons pour confirmer chaque commande avant l'expédition — aucun frais surprise.","In stock — ships in 2–4 days":"En stock — expédié sous 2 à 4 jours","Size":"Taille","Quantity":"Quantité","Order Now":"Commander maintenant","Add to Cart":"Ajouter au panier","Shipping & care":"Expédition et entretien","Returns & exchanges":"Retours et échanges","Customer reviews":"Avis clients","What customers say":"Ce que disent nos clients","Write a review":"Écrire un avis","Shipping Details":"Informations de livraison","Payment Method":"Mode de paiement","Secure Payment":"Paiement sécurisé","How would you like to pay?":"Comment souhaitez-vous payer ?","Pay in cash when your order reaches your door.":"Payez en espèces à la réception de votre commande.","Pay Now — Save 5%":"Payer maintenant — 5 % d'économie","Pay online with Edahabia or CIB — instant confirmation.":"Payez en ligne avec Edahabia ou CIB — confirmation instantanée.","Save 445 DA":"Économisez 445 DA","Continue":"Continuer","Full Name":"Nom complet","Phone Number":"Numéro de téléphone","Add a second phone number":"Ajouter un deuxième numéro","Secondary Phone":"Téléphone secondaire","Next":"Suivant","Delivery Options":"Options de livraison","To Home":"À domicile","To Office":"Au bureau","Wilaya":"Wilaya","Choose your wilaya":"Choisissez votre wilaya","Home Address":"Adresse du domicile","Office Address":"Adresse du bureau","Share your location (optional)":"Partager votre position (facultatif)","Makes it a little easier for delivery to find you.":"Aide le livreur à vous trouver plus facilement.","Confirm Order":"Confirmer la commande","Internet Payment (Edahabia / CIB)":"Paiement en ligne (Edahabia / CIB)","CIB Card":"Carte CIB","You'll pay on Chargily's secure page":"Vous paierez sur la page sécurisée de Chargily","Your card details are entered directly on Chargily — this site never sees or stores them.":"Vos données de carte sont saisies directement sur Chargily — ce site ne les voit ni ne les conserve jamais.","Nothing is charged yet — you'll confirm the amount on Chargily's page next.":"Rien n'est débité pour l'instant — vous confirmerez le montant sur la page de Chargily ensuite.","Continue to secure payment":"Continuer vers le paiement sécurisé","Delivery time depends on your location":"Le délai de livraison dépend de votre localisation","Product":"Produit","Your Cart":"Votre panier","Your cart is empty":"Votre panier est vide","You haven't added any products to your cart yet.":"Vous n'avez encore ajouté aucun produit à votre panier.","Browse now":"Parcourir","Total":"Total","Checkout":"Passer la commande","Confirm your order":"Confirmez votre commande","Almost done — review your details below.":"Presque terminé — vérifiez vos informations ci-dessous.","Save as Image":"Enregistrer en image","OK":"OK","Thank you!":"Merci !","Your order is in good hands. We will take care of it as soon as possible and call you shortly to confirm the details.":"Votre commande est entre de bonnes mains. Nous nous en occupons dans les plus brefs délais et vous appellerons rapidement pour confirmer les détails.","Done":"Terminé","Vertex Hoodie — relaxed, true-to-size fit":"Vertex Hoodie — coupe ample, taille fidèle","Chest (cm)":"Poitrine (cm)","Length (cm)":"Longueur (cm)","Sleeve (cm)":"Manche (cm)","Measured flat, garment laid out. Between sizes or want extra room? Size up — the Vertex is already cut relaxed.":"Mesures prises à plat, vêtement déplié. Entre deux tailles ou envie de plus d'aisance ? Prenez la taille au-dessus — le Vertex a déjà une coupe ample.","Verified customers only":"Réservé aux clients vérifiés","Enter the order number and phone number you used when ordering. We'll check that your order has shipped before you can review it.":"Saisissez le numéro de commande et le numéro de téléphone utilisés lors de votre achat. Nous vérifierons que votre commande a bien été expédiée avant que vous puissiez la noter.","Order number":"Numéro de commande","Phone number":"Numéro de téléphone","Verify order":"Vérifier la commande","Tap to rate":"Touchez pour noter","Your review":"Votre avis","Submit review":"Envoyer l'avis","Use a different order":"Utiliser une autre commande","Thank you":"Merci","Your review is now live on the product page.":"Votre avis est maintenant publié sur la page du produit.","AIRVER · Policies":"AIRVER · Politiques","Store":"Politiques","policies":"de la boutique","Shipping, returns, privacy and terms of sale — everything that applies to your order, together in one place.":"Livraison, retours, confidentialité et conditions de vente — tout ce qui s'applique à votre commande, réuni en un seul endroit.","Shipping & delivery":"Expédition et livraison","Privacy & your data":"Confidentialité et vos données","Terms of sale":"Conditions de vente","Section 01":"Section 01","Section 02":"Section 02","Section 03":"Section 03","Section 04":"Section 04","& delivery":"& livraison","& exchanges":"& échanges","& your data":"& vos données","of sale":"de vente","From our hands to your door, across Algeria.":"De nos mains jusqu'à votre porte, partout en Algérie.","Delivery":"Livraison","We deliver to every wilaya in Algeria. Orders ship within 2–4 business days of confirmation. Choose home or office delivery at checkout.":"Nous livrons dans toutes les wilayas d'Algérie. Les commandes sont expédiées sous 2 à 4 jours ouvrables après confirmation. Choisissez la livraison à domicile ou au bureau lors de la commande.","Confirming your order":"Confirmation de votre commande","We call the phone number on your order before it ships — this protects you from mistaken or fraudulent orders placed in your name.":"Nous appelons le numéro indiqué sur votre commande avant son expédition — cela vous protège des commandes erronées ou frauduleuses passées en votre nom.","Delivery cost":"Frais de livraison","The delivery fee depends on your wilaya and on whether you choose home or office delivery. It is shown in your total before you confirm — nothing extra is collected on arrival beyond that total.":"Les frais de livraison dépendent de votre wilaya et du mode choisi (domicile ou bureau). Ils sont indiqués dans votre total avant la confirmation — rien de plus n'est demandé à l'arrivée en dehors de ce total.","Clear, simple rules for exchanges and refunds.":"Des règles claires et simples pour les échanges et remboursements.","Exchanges":"Échanges","Wrong size? Message us on WhatsApp within 7 days of delivery. Exchanges are free as long as the item is unworn, unwashed, and still has its tags.":"Mauvaise taille ? Écrivez-nous sur WhatsApp dans les 7 jours suivant la livraison. Les échanges sont gratuits tant que l'article n'a pas été porté ni lavé et que ses étiquettes sont intactes.","Refunds":"Remboursements","For cash-on-delivery orders, you can refuse the parcel at the door at no cost. For online payments, refunds for eligible returns go back to the original payment method.":"Pour les commandes payées à la livraison, vous pouvez refuser le colis à la porte sans frais. Pour les paiements en ligne, les remboursements des retours éligibles sont effectués sur le moyen de paiement d'origine.","Damaged or wrong item":"Article endommagé ou erroné","If your order arrives damaged or isn't what you ordered, send us a photo on WhatsApp and we'll sort it out at our cost.":"Si votre commande arrive endommagée ou ne correspond pas à ce que vous avez commandé, envoyez-nous une photo sur WhatsApp et nous réglerons cela à nos frais.","What we collect, why, and the rights you have over it.":"Ce que nous collectons, pourquoi, et les droits dont vous disposez.","What we collect":"Ce que nous collectons","Only what's needed to deliver your order: name, phone number, delivery address and wilaya, and your chosen size and payment method.":"Uniquement ce qui est nécessaire pour livrer votre commande : nom, numéro de téléphone, adresse de livraison et wilaya, ainsi que la taille et le mode de paiement choisis.","How it’s used":"Utilisation de vos données","To confirm and ship your order — nothing else. We don't sell or share your information with advertisers.":"Pour confirmer et expédier votre commande — rien d'autre. Nous ne vendons ni ne partageons vos informations avec des annonceurs.","Where it’s stored":"Où elles sont conservées","Order data is stored securely with Supabase. Card details for online payments are entered directly on Chargily's secure payment page and never pass through our servers.":"Les données de commande sont stockées de manière sécurisée chez Supabase. Les données de carte pour les paiements en ligne sont saisies directement sur la page de paiement sécurisée de Chargily et ne transitent jamais par nos serveurs.","Your rights":"Vos droits","Under Algerian Law n° 18-07 on the protection of personal data, you can ask us to access, correct, or delete your information at any time — message us on WhatsApp.":"En vertu de la loi algérienne n° 18-07 relative à la protection des données personnelles, vous pouvez à tout moment demander à accéder à vos informations, à les corriger ou à les supprimer — écrivez-nous sur WhatsApp.","The simple terms behind every order.":"Les conditions simples derrière chaque commande.","Orders":"Commandes","Prices are listed in Algerian dinars (DZD). An order is confirmed once we've reached you by phone.":"Les prix sont indiqués en dinars algériens (DZD). Une commande est confirmée dès que nous vous avons joint par téléphone.","Payment":"Paiement","We accept cash on delivery and online payment by Edahabia or CIB card via Chargily's secure gateway.":"Nous acceptons le paiement à la livraison et le paiement en ligne par carte Edahabia ou CIB via la passerelle sécurisée de Chargily.","Our right to cancel":"Notre droit d'annuler","We may cancel and refund an order we can’t confirm by phone, or reasonably believe to be fraudulent.":"Nous pouvons annuler et rembourser une commande que nous ne parvenons pas à confirmer par téléphone, ou que nous avons des raisons de croire frauduleuse.","Governing law":"Droit applicable","These terms are governed by the laws of Algeria.":"Les présentes conditions sont régies par les lois de l'Algérie.","Previous":"Précédent","AIRVER · Made in Algeria":"AIRVER · Fabriqué en Algérie","Questions about any of the above? Message us on WhatsApp.":"Une question sur ce qui précède ? Écrivez-nous sur WhatsApp.","Back to top":"Retour en haut","Premium Sportswear":"Vêtements de sport premium","Made in Algeria":"Fabriqué en Algérie","Order Confirmation":"Confirmation de commande","Client":"Client","Phone":"Téléphone","Second Phone":"Deuxième téléphone","Address":"Adresse","Thank you for shopping with AIRVER":"Merci d'avoir acheté chez AIRVER","Put everything back":"Tout remettre en place","Search":"Rechercher","View cart":"Voir le panier","Open menu":"Ouvrir le menu","Menu":"Menu","Close menu":"Fermer le menu","Search products":"Rechercher des produits","Clear search":"Effacer la recherche","Add to cart":"Ajouter au panier","Chat with us on WhatsApp":"Discuter avec nous sur WhatsApp","Cookie notice":"Avis sur les cookies","Vertex Hoodie product details":"Détails du produit Vertex Hoodie","Breadcrumb":"Fil d'Ariane","Read customer reviews":"Lire les avis clients","Vertex Hoodie in Noir, front view":"Vertex Hoodie en Noir, vue de face","Vertex Hoodie in Noir, back view":"Vertex Hoodie en Noir, vue de dos","Vertex Hoodie in Noir, hood and zip detail":"Vertex Hoodie en Noir, détail de la capuche et du zip","Vertex Hoodie in Noir, back construction and stitch detail":"Vertex Hoodie en Noir, détail de la construction et des coutures du dos","Previous photo":"Photo précédente","Next photo":"Photo suivante","Decrease quantity":"Diminuer la quantité","Increase quantity":"Augmenter la quantité","Close checkout":"Fermer la commande","First and last name":"Prénom et nom","Street, neighbourhood, municipality":"Rue, quartier, commune","Share your location":"Partager votre position","Paste your Google Maps link":"Collez votre lien Google Maps","Copy link":"Copier le lien","Choose wilaya":"Choisir la wilaya","Close":"Fermer","Search wilaya or city…":"Rechercher une wilaya ou une ville…","Close cart":"Fermer le panier","Review your order":"Vérifiez votre commande","Your rating":"Votre note","How does it fit? How is the quality?":"Comment taille-t-il ? Comment est la qualité ?","Store policies":"Politiques de la boutique","Contents":"Sommaire","More policies":"Autres politiques","On the rail":"Sur le portant","carry on.":"carry on.","Hover to turn · Drag the top to rotate · Click to explore":"Survolez pour tourner · Faites glisser le haut pour pivoter · Cliquez pour explorer","Tap to turn · Drag the top to rotate · Tap again to explore":"Touchez pour tourner · Faites glisser le haut pour pivoter · Touchez à nouveau pour explorer","Vertex Hoodie in Noir, three-quarter view":"Vertex Hoodie en Noir, vue de trois quarts","Vertex Hoodie in Noir, side view":"Vertex Hoodie en Noir, vue de profil","Vertex Hoodie photos":"Photos du Vertex Hoodie","Photos":"Photos","Explore Vertex Hoodie":"Découvrir le Vertex Hoodie","More styles coming soon":"D'autres modèles arrivent bientôt","Vertex Hoodie, front view":"Vertex Hoodie, vue de face"};
+var FR = {"Complete the 2 steps above to confirm": "Complétez les 2 étapes ci-dessus pour confirmer", "Almost there — one more step": "Presque terminé — encore une étape", "Tap to place your order — nothing to pay now.": "Appuyez pour passer votre commande — rien à payer maintenant.", "Tap to continue to secure payment.": "Appuyez pour passer au paiement sécurisé.","Complete your order": "Finalisez votre commande", "We call this number to confirm before shipping.": "Nous appelons ce numéro pour confirmer avant l'expédition.", "Ships within 2–4 business days of confirmation.": "Expédié sous 2 à 4 jours ouvrables après confirmation.", "Pay when your order arrives": "Payez à la réception de votre commande", "Secure card payment on Chargily": "Paiement par carte sécurisé sur Chargily", "We call to confirm before shipping": "Nous appelons pour confirmer avant l'expédition", "Free size exchange within 7 days": "Échange de taille gratuit sous 7 jours", "+ delivery": "+ livraison","Coming soon":"Bientôt disponible","Hoodie":"Sweat à capuche","Tricot":"Tricot","Pants":"Pantalon","Sweatshirt":"Sweat","Categories":"Catégories","Color":"Couleur","Choose size":"Choisir la taille","Added to cart":"Ajouté au panier","Reset":"Réinitialiser","Scroll down":"Faire défiler vers le bas","Main navigation":"Navigation principale","What's the one thing you always want to carry — but it always gets in the way?":"Quelle est la chose que vous voulez toujours emporter — mais qui vous encombre toujours ?","My phone":"Mon téléphone","My laptop":"Mon ordinateur portable","My headphones":"Mon casque","My water bottle":"Ma gourde","My book":"Mon livre","Skip":"Passer","Home":"Accueil","Catalog":"Catalogue","Contact":"Contact","Size guide":"Guide des tailles","Shipping":"Expédition","Returns":"Retours","Privacy":"Confidentialité","Terms":"Conditions","Cancel":"Annuler","Scroll":"Défiler","AIRVER — First Drop":"AIRVER — Premier drop","View details":"Voir les détails","More styles":"Plus de modèles","coming soon":"bientôt disponibles","Secure checkout — pay online or cash on delivery":"Paiement sécurisé — en ligne ou à la livraison","Cash on Delivery":"Paiement à la livraison","— Algiers, Algeria":"— Alger, Algérie","Questions about an order? Message us on WhatsApp — we usually reply within a day.":"Une question sur une commande ? Écrivez-nous sur WhatsApp — nous répondons généralement sous un jour.","© 2026 AIRVER. All rights reserved.":"© 2026 AIRVER. Tous droits réservés.","We use a small number of cookies to keep your cart and checkout working. No tracking or ad cookies. See our":"Nous utilisons quelques cookies pour faire fonctionner votre panier et votre commande. Aucun cookie de suivi ni publicitaire. Consultez notre","Privacy Policy":"Politique de confidentialité","Got it":"Compris","Back":"Retour","Outerwear":"Vêtements d'extérieur","in Noir":"en Noir","Relaxed, true-to-size fit":"Coupe ample, taille fidèle","Heavyweight brushed cotton-fleece":"Molleton de coton gratté, épais","Angular contrast stitching across front and back":"Surpiqûres contrastées angulaires sur le devant et le dos","Adjustable drawstring hood, fully lined":"Capuche à cordon ajustable, entièrement doublée","Full-length zip with matte hardware":"Zip intégral avec quincaillerie mate","Ribbed cuffs and hem for a secure fit":"Poignets et bas côtelés pour un maintien parfait","Front pockets with clean stitched edges":"Poches avant aux bords soigneusement surpiqués","Brushed fleece":"Molleton gratté","Water-resistant":"Résistant à l'eau","Limited batch":"Série limitée","New":"Nouveau","5% off when you pay online at checkout":"5 % de réduction si vous payez en ligne","We call to confirm every order before it ships — no surprise charges.":"Nous appelons pour confirmer chaque commande avant l'expédition — aucun frais surprise.","In stock — ships in 2–4 days":"En stock — expédié sous 2 à 4 jours","Size":"Taille","Quantity":"Quantité","Order Now":"Commander maintenant","Add to Cart":"Ajouter au panier","Shipping & care":"Expédition et entretien","Returns & exchanges":"Retours et échanges","Customer reviews":"Avis clients","What customers say":"Ce que disent nos clients","Write a review":"Écrire un avis","Shipping Details":"Informations de livraison","Payment Method":"Mode de paiement","Secure Payment":"Paiement sécurisé","How would you like to pay?":"Comment souhaitez-vous payer ?","Pay in cash when your order reaches your door.":"Payez en espèces à la réception de votre commande.","Pay Now — Save 5%":"Payer maintenant — 5 % d'économie","Pay online with Edahabia or CIB — instant confirmation.":"Payez en ligne avec Edahabia ou CIB — confirmation instantanée.","Save 445 DA":"Économisez 445 DA","Continue":"Continuer","Full Name":"Nom complet","Phone Number":"Numéro de téléphone","Add a second phone number":"Ajouter un deuxième numéro","Secondary Phone":"Téléphone secondaire","Next":"Suivant","Delivery Options":"Options de livraison","To Home":"À domicile","To Office":"Au bureau","Wilaya":"Wilaya","Choose your wilaya":"Choisissez votre wilaya","Home Address":"Adresse du domicile","Office Address":"Adresse du bureau","Share your location (optional)":"Partager votre position (facultatif)","Makes it a little easier for delivery to find you.":"Aide le livreur à vous trouver plus facilement.","Confirm Order":"Confirmer la commande","Internet Payment (Edahabia / CIB)":"Paiement en ligne (Edahabia / CIB)","CIB Card":"Carte CIB","You'll pay on Chargily's secure page":"Vous paierez sur la page sécurisée de Chargily","Your card details are entered directly on Chargily — this site never sees or stores them.":"Vos données de carte sont saisies directement sur Chargily — ce site ne les voit ni ne les conserve jamais.","Nothing is charged yet — you'll confirm the amount on Chargily's page next.":"Rien n'est débité pour l'instant — vous confirmerez le montant sur la page de Chargily ensuite.","Continue to secure payment":"Continuer vers le paiement sécurisé","Delivery time depends on your location":"Le délai de livraison dépend de votre localisation","Product":"Produit","Your Cart":"Votre panier","Your cart is empty":"Votre panier est vide","You haven't added any products to your cart yet.":"Vous n'avez encore ajouté aucun produit à votre panier.","Browse now":"Parcourir","Total":"Total","Checkout":"Passer la commande","Confirm your order":"Confirmez votre commande","Almost done — review your details below.":"Presque terminé — vérifiez vos informations ci-dessous.","Save as Image":"Enregistrer en image","OK":"OK","Thank you!":"Merci !","Your order is in good hands. We will take care of it as soon as possible and call you shortly to confirm the details.":"Votre commande est entre de bonnes mains. Nous nous en occupons dans les plus brefs délais et vous appellerons rapidement pour confirmer les détails.","Done":"Terminé","Vertex Hoodie — relaxed, true-to-size fit":"Vertex Hoodie — coupe ample, taille fidèle","Chest (cm)":"Poitrine (cm)","Length (cm)":"Longueur (cm)","Sleeve (cm)":"Manche (cm)","Measured flat, garment laid out. Between sizes or want extra room? Size up — the Vertex is already cut relaxed.":"Mesures prises à plat, vêtement déplié. Entre deux tailles ou envie de plus d'aisance ? Prenez la taille au-dessus — le Vertex a déjà une coupe ample.","Verified customers only":"Réservé aux clients vérifiés","Enter the order number and phone number you used when ordering. We'll check that your order has shipped before you can review it.":"Saisissez le numéro de commande et le numéro de téléphone utilisés lors de votre achat. Nous vérifierons que votre commande a bien été expédiée avant que vous puissiez la noter.","Order number":"Numéro de commande","Phone number":"Numéro de téléphone","Verify order":"Vérifier la commande","Tap to rate":"Touchez pour noter","Your review":"Votre avis","Submit review":"Envoyer l'avis","Use a different order":"Utiliser une autre commande","Thank you":"Merci","Your review is now live on the product page.":"Votre avis est maintenant publié sur la page du produit.","AIRVER · Policies":"AIRVER · Politiques","Store":"Politiques","policies":"de la boutique","Shipping, returns, privacy and terms of sale — everything that applies to your order, together in one place.":"Livraison, retours, confidentialité et conditions de vente — tout ce qui s'applique à votre commande, réuni en un seul endroit.","Shipping & delivery":"Expédition et livraison","Privacy & your data":"Confidentialité et vos données","Terms of sale":"Conditions de vente","Section 01":"Section 01","Section 02":"Section 02","Section 03":"Section 03","Section 04":"Section 04","& delivery":"& livraison","& exchanges":"& échanges","& your data":"& vos données","of sale":"de vente","From our hands to your door, across Algeria.":"De nos mains jusqu'à votre porte, partout en Algérie.","Delivery":"Livraison","We deliver to every wilaya in Algeria. Orders ship within 2–4 business days of confirmation. Choose home or office delivery at checkout.":"Nous livrons dans toutes les wilayas d'Algérie. Les commandes sont expédiées sous 2 à 4 jours ouvrables après confirmation. Choisissez la livraison à domicile ou au bureau lors de la commande.","Confirming your order":"Confirmation de votre commande","We call the phone number on your order before it ships — this protects you from mistaken or fraudulent orders placed in your name.":"Nous appelons le numéro indiqué sur votre commande avant son expédition — cela vous protège des commandes erronées ou frauduleuses passées en votre nom.","Delivery cost":"Frais de livraison","The delivery fee depends on your wilaya and on whether you choose home or office delivery. It is shown in your total before you confirm — nothing extra is collected on arrival beyond that total.":"Les frais de livraison dépendent de votre wilaya et du mode choisi (domicile ou bureau). Ils sont indiqués dans votre total avant la confirmation — rien de plus n'est demandé à l'arrivée en dehors de ce total.","Clear, simple rules for exchanges and refunds.":"Des règles claires et simples pour les échanges et remboursements.","Exchanges":"Échanges","Wrong size? Message us on WhatsApp within 7 days of delivery. Exchanges are free as long as the item is unworn, unwashed, and still has its tags.":"Mauvaise taille ? Écrivez-nous sur WhatsApp dans les 7 jours suivant la livraison. Les échanges sont gratuits tant que l'article n'a pas été porté ni lavé et que ses étiquettes sont intactes.","Refunds":"Remboursements","For cash-on-delivery orders, you can refuse the parcel at the door at no cost. For online payments, refunds for eligible returns go back to the original payment method.":"Pour les commandes payées à la livraison, vous pouvez refuser le colis à la porte sans frais. Pour les paiements en ligne, les remboursements des retours éligibles sont effectués sur le moyen de paiement d'origine.","Damaged or wrong item":"Article endommagé ou erroné","If your order arrives damaged or isn't what you ordered, send us a photo on WhatsApp and we'll sort it out at our cost.":"Si votre commande arrive endommagée ou ne correspond pas à ce que vous avez commandé, envoyez-nous une photo sur WhatsApp et nous réglerons cela à nos frais.","What we collect, why, and the rights you have over it.":"Ce que nous collectons, pourquoi, et les droits dont vous disposez.","What we collect":"Ce que nous collectons","Only what's needed to deliver your order: name, phone number, delivery address and wilaya, and your chosen size and payment method.":"Uniquement ce qui est nécessaire pour livrer votre commande : nom, numéro de téléphone, adresse de livraison et wilaya, ainsi que la taille et le mode de paiement choisis.","How it’s used":"Utilisation de vos données","To confirm and ship your order — nothing else. We don't sell or share your information with advertisers.":"Pour confirmer et expédier votre commande — rien d'autre. Nous ne vendons ni ne partageons vos informations avec des annonceurs.","Where it’s stored":"Où elles sont conservées","Order data is stored securely with Supabase. Card details for online payments are entered directly on Chargily's secure payment page and never pass through our servers.":"Les données de commande sont stockées de manière sécurisée chez Supabase. Les données de carte pour les paiements en ligne sont saisies directement sur la page de paiement sécurisée de Chargily et ne transitent jamais par nos serveurs.","Your rights":"Vos droits","Under Algerian Law n° 18-07 on the protection of personal data, you can ask us to access, correct, or delete your information at any time — message us on WhatsApp.":"En vertu de la loi algérienne n° 18-07 relative à la protection des données personnelles, vous pouvez à tout moment demander à accéder à vos informations, à les corriger ou à les supprimer — écrivez-nous sur WhatsApp.","The simple terms behind every order.":"Les conditions simples derrière chaque commande.","Orders":"Commandes","Prices are listed in Algerian dinars (DZD). An order is confirmed once we've reached you by phone.":"Les prix sont indiqués en dinars algériens (DZD). Une commande est confirmée dès que nous vous avons joint par téléphone.","Payment":"Paiement","We accept cash on delivery and online payment by Edahabia or CIB card via Chargily's secure gateway.":"Nous acceptons le paiement à la livraison et le paiement en ligne par carte Edahabia ou CIB via la passerelle sécurisée de Chargily.","Our right to cancel":"Notre droit d'annuler","We may cancel and refund an order we can’t confirm by phone, or reasonably believe to be fraudulent.":"Nous pouvons annuler et rembourser une commande que nous ne parvenons pas à confirmer par téléphone, ou que nous avons des raisons de croire frauduleuse.","Governing law":"Droit applicable","These terms are governed by the laws of Algeria.":"Les présentes conditions sont régies par les lois de l'Algérie.","Previous":"Précédent","AIRVER · Made in Algeria":"AIRVER · Fabriqué en Algérie","Questions about any of the above? Message us on WhatsApp.":"Une question sur ce qui précède ? Écrivez-nous sur WhatsApp.","Back to top":"Retour en haut","Premium Sportswear":"Vêtements de sport premium","Made in Algeria":"Fabriqué en Algérie","Order Confirmation":"Confirmation de commande","Client":"Client","Phone":"Téléphone","Second Phone":"Deuxième téléphone","Address":"Adresse","Thank you for shopping with AIRVER":"Merci d'avoir acheté chez AIRVER","Put everything back":"Tout remettre en place","Search":"Rechercher","View cart":"Voir le panier","Open menu":"Ouvrir le menu","Menu":"Menu","Close menu":"Fermer le menu","Search products":"Rechercher des produits","Clear search":"Effacer la recherche","Add to cart":"Ajouter au panier","Chat with us on WhatsApp":"Discuter avec nous sur WhatsApp","Cookie notice":"Avis sur les cookies","Vertex Hoodie product details":"Détails du produit Vertex Hoodie","Breadcrumb":"Fil d'Ariane","Read customer reviews":"Lire les avis clients","Vertex Hoodie in Noir, front view":"Vertex Hoodie en Noir, vue de face","Vertex Hoodie in Noir, back view":"Vertex Hoodie en Noir, vue de dos","Vertex Hoodie in Noir, hood and zip detail":"Vertex Hoodie en Noir, détail de la capuche et du zip","Vertex Hoodie in Noir, back construction and stitch detail":"Vertex Hoodie en Noir, détail de la construction et des coutures du dos","Previous photo":"Photo précédente","Next photo":"Photo suivante","Decrease quantity":"Diminuer la quantité","Increase quantity":"Augmenter la quantité","Close checkout":"Fermer la commande","First and last name":"Prénom et nom","Street, neighbourhood, municipality":"Rue, quartier, commune","Share your location":"Partager votre position","Paste your Google Maps link":"Collez votre lien Google Maps","Copy link":"Copier le lien","Choose wilaya":"Choisir la wilaya","Close":"Fermer","Search wilaya or city…":"Rechercher une wilaya ou une ville…","Close cart":"Fermer le panier","Review your order":"Vérifiez votre commande","Your rating":"Votre note","How does it fit? How is the quality?":"Comment taille-t-il ? Comment est la qualité ?","Store policies":"Politiques de la boutique","Contents":"Sommaire","More policies":"Autres politiques","On the rail":"Sur le portant","carry on.":"carry on.","Hover to turn · Drag the top to rotate · Click to explore":"Survolez pour tourner · Faites glisser le haut pour pivoter · Cliquez pour explorer","Tap to turn · Drag the top to rotate · Tap again to explore":"Touchez pour tourner · Faites glisser le haut pour pivoter · Touchez à nouveau pour explorer","Vertex Hoodie in Noir, three-quarter view":"Vertex Hoodie en Noir, vue de trois quarts","Vertex Hoodie in Noir, side view":"Vertex Hoodie en Noir, vue de profil","Vertex Hoodie photos":"Photos du Vertex Hoodie","Photos":"Photos","Explore Vertex Hoodie":"Découvrir le Vertex Hoodie","More styles coming soon":"D'autres modèles arrivent bientôt","Vertex Hoodie, front view":"Vertex Hoodie, vue de face"};
 var RULES = [["^Step (\\d+) of (\\d+)$","Étape $1 sur $2"],["^Save ([\\d\\s.,\\u202f\\u00a0]+) DA$","Économisez $1 DA"],["^Pay Now — Save (\\d+)%$","Payer maintenant — $1 % d'économie"]].map(function(r){ return [new RegExp(r[0]), r[1]]; });
 var KEEP = '[data-i18n-keep], .lang-switch, #policiesPage';
 var ATTRS = ['placeholder','aria-label','alt','title','data-placeholder'];
@@ -4947,17 +5225,75 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
       if(pr && priceEl && priceEl.textContent !== pr.textContent) priceEl.textContent = pr.textContent;
     }
     function turn(it, on){
-      it.turned = on; if(!on) it.armed = false;
+      it.auto = false; it.turned = on; if(!on) it.armed = false;
       it.el.classList.toggle('is-turned', on);
       if(on){ mirror(it); setState('product'); } else { setState('idle'); }
       go(it, on ? 1 : 0);
     }
 
+    /* AUTO SHOWCASE: when the rail scrolls into view, one garment turns to face you by itself while the other hangs
+       beside it; every few seconds the two swap roles, so ONE IS ALWAYS FACING YOU (never both side-on). Hover / touch /
+       drag / keys take over, and when you let go the garment you were holding simply stays until the swap hands over.
+       It stays calm (a single turn, no loop) with reduced motion or on slow phones. */
+    var auto = (function(){
+      var T = 0, R = 0, idx = 0, inView = false, hovering = false, first = true, DWELL = 3800;
+      var calm = reduce || document.documentElement.classList.contains('lite');
+      function blocked(){
+        var ov = document.getElementById('productOverlay'), cat = grid.getAttribute('data-cat');
+        return document.hidden || !!(ov && ov.classList.contains('is-open')) || !!(cat && cat !== 'hoodie');
+      }
+      function shown(){ return items.filter(function(i){ return i.el.offsetParent !== null; }); }
+      /* a garment the visitor is holding open facing front: leave it alone */
+      function userHas(){ return items.some(function(i){ return i.turned && !i.auto && i.t > .85; }); }
+      function stop(){ clearTimeout(T); T = 0; }
+      function step(){
+        clearTimeout(T); T = 0;
+        if(!inView || hovering) return;
+        if(blocked() || userHas()){ T = setTimeout(step, 1500); return; }
+        var vis = shown(); if(!vis.length) return;
+        var cur = vis.filter(function(o){ return o.turned; })[0], next;
+        if(cur){ next = vis[(vis.indexOf(cur) + 1) % vis.length]; }
+        else { next = vis[idx % vis.length]; idx++; }
+        items.forEach(function(o){ if(o !== next && o.turned) turn(o, false); });   /* hand-off: one off, one on, same moment */
+        turn(next, true); next.auto = true;
+        if(!calm) T = setTimeout(step, DWELL);
+      }
+      function hold(keep){
+        stop(); clearTimeout(R); R = 0;
+        if(keep){ items.forEach(function(o){ if(o !== keep && o.turned) turn(o, false); }); keep.auto = false; }
+      }
+      function release(ms){
+        clearTimeout(R);
+        R = setTimeout(function(){ R = 0; if(!T && inView && !hovering) step(); }, ms);
+      }
+      /* the visitor let go: keep their garment facing front until the showcase swaps to the other one */
+      function handBack(it){
+        if(!inView || !it.turned) return false;
+        it.auto = true; release(1600); return true;
+      }
+      function hover(on){ hovering = !!on; }
+      if('IntersectionObserver' in window){
+        new IntersectionObserver(function(es){
+          var e = es[es.length - 1];
+          var now = !!(e.isIntersecting && (e.intersectionRatio >= .25 || e.intersectionRect.height >= window.innerHeight * .4));
+          if(now === inView) return;
+          inView = now;
+          if(now){ release(first ? 800 : 500); first = false; } else { stop(); clearTimeout(R); R = 0; }
+        }, { threshold: [0, .25, .5, .75] }).observe(grid);
+      } else { inView = true; release(1200); }
+      document.addEventListener('visibilitychange', function(){
+        if(document.hidden){ stop(); clearTimeout(R); R = 0; } else if(inView){ release(600); }
+      });
+      return { hold: hold, release: release, hover: hover, handBack: handBack };
+    })();
+
     items.forEach(function(it){
-      it.el.addEventListener('pointerenter', function(e){ if(e.pointerType === 'mouse' || e.pointerType === 'pen') turn(it, true); });
-      it.el.addEventListener('pointerleave', function(e){ if((e.pointerType === 'mouse' || e.pointerType === 'pen') && !it.armed) turn(it, false); });
-      it.el.addEventListener('focus', function(){ if(lastPtr !== 'touch') turn(it, true); });
-      it.el.addEventListener('blur', function(){ if(lastPtr !== 'touch') turn(it, false); });
+      it.el.addEventListener('pointerenter', function(e){ if(e.pointerType === 'mouse' || e.pointerType === 'pen'){ auto.hover(true); auto.hold(it); turn(it, true); } });
+      it.el.addEventListener('pointerleave', function(e){
+        if(e.pointerType === 'mouse' || e.pointerType === 'pen'){ auto.hover(false); if(!it.armed && !auto.handBack(it)) turn(it, false); }
+      });
+      it.el.addEventListener('focus', function(){ if(lastPtr !== 'touch'){ auto.hold(it); turn(it, true); } });
+      it.el.addEventListener('blur', function(){ if(lastPtr !== 'touch' && !auto.handBack(it)) turn(it, false); });
       render(it);
     });
     /* DRAG: press the top of the garment (the grip zone) and drag left / right to turn it by hand.
@@ -4983,6 +5319,7 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
           if(it.raf){ cancelAnimationFrame(it.raf); it.raf = 0; }
           drag.dir = (drag.p0 > .5) ? -1 : 1;
           items.forEach(function(o){ if(o !== it && o.turned) turn(o, false); });   /* the other garment goes back to its place */
+          auto.hold(it);
           it.v = 0; it.turned = true; it.el.classList.add('is-turned', 'is-dragging');
           mirror(it); setState('product');
           document.documentElement.classList.add('rail-dragging');
@@ -5001,6 +5338,7 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
         document.documentElement.classList.remove('rail-dragging'); it.el.classList.remove('is-dragging');
         if(!d.moved) return;
         lastDragEnd = Date.now();
+        auto.release(d.touch ? 9000 : 2500);
         var vel = (e.timeStamp - d.pt > 90) ? 0 : d.vel;
         it.v = 0;
         var fin = clamp(it.p + vel * .16, 0, 1);
@@ -5012,7 +5350,7 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
       host.addEventListener('lostpointercapture', end);
       it.el.addEventListener('keydown', function(e){
         if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-        e.preventDefault(); it.turned = true; it.el.classList.add('is-turned'); mirror(it); setState('product');
+        e.preventDefault(); auto.hold(it); it.turned = true; it.el.classList.add('is-turned'); mirror(it); setState('product');
         var i = clamp(nearest(it.t) + (e.key === 'ArrowRight' ? 1 : -1), 0, POSES.length - 1);
         go(it, POSES[i]);
       });
@@ -5025,7 +5363,7 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
     });
 
     /* touch: first tap turns the garment, the next tap (or the button below) opens it */
-    grid.addEventListener('pointerdown', function(e){ lastPtr = e.pointerType || 'mouse'; }, true);
+    grid.addEventListener('pointerdown', function(e){ lastPtr = e.pointerType || 'mouse'; auto.hold(null); if(lastPtr !== 'mouse') auto.release(9000); }, true);
     grid.addEventListener('click', function(e){
       var el = e.target.closest ? e.target.closest('.rail-item') : null; if(!el) return;
       if(e.target.closest('.quick-add-btn')) return;
@@ -5041,7 +5379,9 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
     }, true);
     document.addEventListener('pointerdown', function(e){
       if(e.target.closest && (e.target.closest('.rail-item') || e.target.closest('#railExplore'))) return;
-      items.forEach(function(it){ if(it.turned) turn(it, false); });
+      /* a tap elsewhere hands the garment back to the showcase instead of leaving both side-on */
+      items.forEach(function(it){ if(it.turned && !it.auto && !auto.handBack(it)) turn(it, false); });
+      auto.release(3000);
     }, true);
 
     if(explore){
@@ -5200,7 +5540,7 @@ if(document.readyState === 'complete') start(); else window.addEventListener('lo
   new MutationObserver(function(){ if(!page.classList.contains('is-open')) open(false); }).observe(page, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
-<script defer src="assets/app1.fix8.js?v=11"></script>
+<script defer src="assets/app1.fix8.js?v=13"></script>
 
 <!-- Export invoice: clean white receipt captured for "Save as Image" -->
 <div id="invoiceSheet" aria-hidden="true">
