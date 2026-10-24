@@ -559,6 +559,7 @@ const nav = document.getElementById('nav');
   // ---- Delivery fee per wilaya: the AIRVER delivery tariff [home, office]. 0 = not served for that mode. ----
   // (The server recomputes the fee from the shipping_rates table — keep both in step, see shipping_rates.sql.)
   const FEES = {"1":[1200,900],"2":[850,450],"3":[950,550],"4":[850,450],"5":[900,450],"6":[800,450],"7":[950,550],"8":[1000,650],"9":[600,400],"10":[800,450],"11":[1500,1050],"12":[900,500],"13":[900,500],"14":[850,450],"15":[750,450],"16":[450,300],"17":[950,500],"18":[900,450],"19":[800,450],"20":[900,450],"21":[900,450],"22":[900,450],"23":[850,450],"24":[900,450],"25":[800,450],"26":[800,450],"27":[900,450],"28":[850,500],"29":[900,450],"30":[950,600],"31":[800,450],"32":[1000,600],"33":[0,0],"34":[800,450],"35":[700,450],"36":[850,450],"37":[0,0],"38":[900,500],"39":[950,600],"40":[900,450],"41":[900,450],"42":[700,450],"43":[900,450],"44":[900,450],"45":[950,650],"46":[900,450],"47":[950,550],"48":[900,450],"49":[1200,900],"50":[0,0],"51":[950,550],"52":[950,900],"53":[1500,1100],"54":[1500,0],"55":[950,600],"56":[0,0],"57":[950,0],"58":[950,800]};
+  window.AirverCfg = { url: SUPABASE_URL, key: SUPABASE_ANON_KEY, token: getTurnstileToken, fees: FEES };   // used by assets/wheel.js
   function feeFor(code, method) { const r = FEES[code]; if (!r) return null; const v = method === 'office' ? r[1] : r[0]; return v > 0 ? v : null; }
   function currentShippingFee() { return selectedWilaya ? feeFor(selectedWilaya[0], deliveryMethod) : null; }
   function wilayaModes(code) { return { home: feeFor(code, 'home') != null, office: feeFor(code, 'office') != null }; }
@@ -568,11 +569,14 @@ const nav = document.getElementById('nav');
     return el;
   }
   // product subtotal, online discount (5%), delivery and grand total — one place, used by every screen
+  // ---- welcome-gift code (issued by the wheel). A % off the DELIVERY fee only; the server re-validates it when the order is placed. ----
+  function promoNow() { try { return (window.AirverPromo && window.AirverPromo.current()) || null; } catch (e) { return null; } }
   function totalsNow() {
     const net = cartTotalPrice();                       /* already net of the online discount (cartUnitPrice) */
     const full = cart.reduce((sum, i) => sum + i.qty * (i.productId ? i.price : PRICE_COD_NUM), 0);
     const fee = currentShippingFee();
-    return { sub: full, disc: full - net, fee: fee, net: net, total: net + (fee || 0) };
+    const pr = promoNow(), pd = (pr && fee != null) ? Math.round(fee * pr.pct / 100) : 0;   // same rounding as the database
+    return { sub: full, disc: full - net, fee: fee, net: net, promo: pd, promoCode: pr ? pr.code : null, total: net + (fee || 0) - pd };
   }
   function tick(el, text) { if (el.textContent === text) return; el.textContent = text; el.classList.remove('is-tick'); void el.offsetWidth; el.classList.add('is-tick'); }
   function renderFeeCard(t) {
@@ -598,6 +602,11 @@ const nav = document.getElementById('nav');
     tick(document.getElementById('feeSub'), formatDZD(t.sub));
     const dr = document.getElementById('feeDiscRow'); dr.hidden = !t.disc;
     if (t.disc) tick(document.getElementById('feeDisc'), '− ' + formatDZD(t.disc));
+    const gr = document.getElementById('feePromoRow');
+    if (gr) {
+      gr.hidden = !t.promoCode;
+      if (t.promoCode) { document.getElementById('feePromoLabel').textContent = 'Welcome gift · ' + t.promoCode; tick(document.getElementById('feePromo'), t.promo ? '− ' + formatDZD(t.promo) : 'applies to delivery'); }
+    }
     document.getElementById('feeDelLabel').textContent = label;
     tick(document.getElementById('feeDel'), val);
     tick(document.getElementById('feeTotal'), formatDZD(state === 'ok' ? t.total : t.net));
@@ -612,7 +621,7 @@ const nav = document.getElementById('nav');
     summaryPrice.textContent = txt;
     summaryPrice2.textContent = txt;
     const note = t.fee == null ? 'Delivery fee is added once you choose your wilaya'
-      : 'Includes ' + formatDZD(t.fee) + ' delivery (' + (deliveryMethod === 'office' ? 'to office' : 'to home') + ')';
+      : 'Includes ' + formatDZD(t.fee - t.promo) + ' delivery (' + (deliveryMethod === 'office' ? 'to office' : 'to home') + ')' + (t.promo ? ' after your gift' : '');
     shipNoteEl('summaryShip', summaryPrice).textContent = note;
     shipNoteEl('summaryShip2', summaryPrice2).textContent = note;
     renderFeeCard(t);
@@ -620,6 +629,7 @@ const nav = document.getElementById('nav');
     const bp = document.getElementById('detailsBtnPlus'); if (bp) bp.hidden = t.fee != null;
     updateSectionChecks();
   }
+  window.addEventListener('airver:promo', () => { try { refreshSummaryTotals(); } catch (e) {} });   // the wheel gave, or the server took back, a code
   document.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('#feeSwitch'); if (!b) return;
     const to = document.getElementById('feeCard').dataset.alt; if (to) setDelivery(to);
@@ -857,12 +867,15 @@ const nav = document.getElementById('nav');
     });
   }
   function orderPayload(o, method) {
-    return {
+    const body = {
       name: o.name, phone: o.phone, second_phone: o.secondPhone || null, address: o.address, maps_url: o.mapsUrl || null,
       wilaya_code: o.wilayaCode, delivery: o.deliveryRaw, method: method,
       items: cart.map(i => { const it = { sku: i.productId ? String(i.productId) : 'hoodie', size: String(i.size), qty: i.qty }; if (!i.productId && i.color === 'black') it.color = 'black'; return it; }),
       request_id: o.requestId, expected_total: o.totalNum
     };
+    const pr = promoNow();
+    if (pr && currentShippingFee() != null) { body.promo_code = pr.code; body.device_id = pr.device; }
+    return body;
   }
   async function submitOrderToServer(o, method) {
     if (!cart.length) return { ok: false, code: 'EMPTY_CART' };
@@ -872,7 +885,8 @@ const nav = document.getElementById('nav');
       try {
         const res = await fetch(CREATE_ORDER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY }, body: JSON.stringify(body) });
         const data = await res.json().catch(() => ({}));
-        if (res.ok) return { ok: true, data: data };
+        if (res.ok) { if (body.promo_code && window.AirverPromo) window.AirverPromo.markUsed(); return { ok: true, data: data }; }
+        if (/^PROMO_/.test(data.error || '') && window.AirverPromo) window.AirverPromo.invalidate();     // the totals redraw without it
         return { ok: false, code: data.error || 'SERVER_ERROR', data: data, status: res.status };   // a definitive answer: never retried
       } catch (err) {
         if (attempt === 1) return { ok: false, code: 'NETWORK' };
@@ -889,6 +903,11 @@ const nav = document.getElementById('nav');
       case 'RATE_LIMIT': return 'Too many attempts. Please wait a little and try again.';
       case 'CAPTCHA_FAILED': case 'CAPTCHA_ERROR': return 'The security check did not complete. Please reload the page and try again.';
       case 'PRICE_CHANGED': return 'The price was just updated to ' + (d.total ? formatDZD(d.total) : 'a new amount') + '. Please reload the page and review your order.';
+      case 'PROMO_USED': return 'This gift code has already been used. We removed it — please confirm your order again.';
+      case 'PROMO_EXPIRED': return 'This gift code has expired. We removed it — please confirm your order again.';
+      case 'PROMO_DEVICE': return 'This gift code belongs to another browser. We removed it — please confirm your order again.';
+      case 'PROMO_PHONE_USED': return 'A gift code was already used with this phone number. We removed it — please confirm your order again.';
+      case 'PROMO_INVALID': return 'This gift code is not valid. We removed it — please confirm your order again.';
       case 'INVALID_FIELD': return 'Please check your ' + (FIELD_LABELS[d.field] || 'details') + ' and try again.';
       case 'PAYMENT_UNAVAILABLE': return 'Online payment is temporarily unavailable. Please choose Cash on Delivery.';
       case 'NETWORK': return 'We could not reach our server. Check your connection and try again.';
@@ -909,7 +928,7 @@ const nav = document.getElementById('nav');
     banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   function applyServerTotals(o, d) {
-    o.ref = d.ref; o.totalNum = d.total; o.total = formatDZD(d.total); o.shippingFee = d.shipping_fee; o.subtotal = d.subtotal;
+    o.ref = d.ref; o.totalNum = d.total; o.total = formatDZD(d.total); o.shippingFee = d.shipping_fee; o.shippingDiscount = d.shipping_discount || 0; o.subtotal = d.subtotal;
   }
 
   // ============================================================================
@@ -1661,6 +1680,7 @@ const nav = document.getElementById('nav');
 
       detailsSubmitBtn.disabled = false;
       detailsSubmitBtn.innerHTML = oldHTML;
+      try { refreshSummaryTotals(); } catch (e) {}   // the saved copy may carry an amount from before a refused gift code
 
       if (result.ok) {
         applyServerTotals(order, result.data);
